@@ -16,11 +16,11 @@ $$
 
 where:
 
-$H_{i}$ = tree height (ft) of the *i*th tree at top diameter $D$
+$H_{i}$ = tree height (ft) of the $i^{th}$ tree at top diameter $D$.
 
-$D_{i}$ = top-diameter (in.) within tree *i*
+$D_{i}$ = top-diameter (in.) within the $i^{th}$ tree.
 
-$DBH_i$ = diameter at breast height (in.) of tree *i*
+$DBH_i$ = diameter at breast height (in.) of the $i^{th}$ tree.
 
 $CC_{1i}$, $CC_{2i}$, $CC_{3i}$ = The crown class indicators of tree *i*. These are a set of one-hot encoded variables. 
 
@@ -42,7 +42,7 @@ TC_i = \begin{cases}
 \end{cases}
 $$
 
-$CR_i$ = compacted crown ratio (%) of tree *i*[^1]
+$CR_i$ = compacted crown ratio (%; integers 0 - 100) of the $i^{th}$ tree. The units are 
 
 $\beta_0 \text{--} \beta_6$ = fixed-effects population parameters
 
