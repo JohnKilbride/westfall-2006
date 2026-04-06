@@ -46,6 +46,50 @@ $CR_i$ = compacted crown ratio (%; integers 0 - 100) of the $i^{th}$ tree. The u
 
 $\beta_0 \text{--} \beta_6$ = fixed-effects population parameters
 
+## Example Calculation
+
+Westfall and Laustsen (2006) provided an example of how to apply the equations using a poplar tree with the following attributes:
+- **dbh** = 15.5 in.
+- **Compacted crown ratio** = 40 percent
+- **Tree class** = acceptable (TC = 2)
+- **Crown class** = codominant (CC₁ = 0; CC₂ = 1; CC₃ = 0)
+
+### 1) Prediction of total height
+
+Here, we compute total height. When computing total height, you set the top-height diameter to 0.
+
+$$\begin{aligned}
+H_{i0} &= \left(-4.2401(0) + 84.2529(0) + 91.5048(1) + 78.7788(0)\right) \\
+&\quad \cdot \left(1 - \exp(-0.1023 \cdot 15.5)\right) \\
+&\quad \cdot \exp\left(0.0054(40) + 0.0638(2) + \left(\tfrac{0}{15.5} + 0.01\right)^{0.1422}\right) \\
+H_{i0} &= (91.5048) \cdot (0.7943) \cdot \exp\left(0.3436 + (0.01)^{0.1422}\right) \\
+H_{i0} &= 75.0 \text{ ft}
+\end{aligned}$$
+
+### 2) Prediction of bole height (4-in. top diameter)
+
+Conpute the top height of the 4-in. diameter bole.
+
+$$\begin{aligned}
+H_{i4} &= \left(-4.2401(4) + 84.2529(0) + 91.5048(1) + 78.7788(0)\right) \\
+&\quad \cdot \left(1 - \exp(-0.1023 \cdot 15.5)\right) \\
+&\quad \cdot \exp\left(0.0054(40) + 0.0638(2) + \left(\tfrac{4}{15.5} + 0.01\right)^{0.1422}\right) \\
+H_{i4} &= (74.5444) \cdot (0.7943) \cdot \exp\left(0.3436 + (0.2681)^{0.1422}\right) \\
+H_{i4} &= 56.9 \text{ ft}
+\end{aligned}$$
+
+### 3) Prediction of sawlog height (9-in. top diameter)
+
+Conpute the top height of the 9-in. diameter bole.
+
+$$\begin{aligned}
+H_{i9} &= \left(-4.2401(9) + 84.2529(0) + 91.5048(1) + 78.7788(0)\right) \\
+&\quad \cdot \left(1 - \exp(-0.1023 \cdot 15.5)\right) \\
+&\quad \cdot \exp\left(0.0054(40) + 0.0638(2) + \left(\tfrac{9}{15.5} + 0.01\right)^{0.1422}\right) \\
+H_{i9} &= (53.3439) \cdot (0.7943) \cdot \exp\left(0.3436 + (0.5906)^{0.1422}\right) \\
+H_{i9} &= 39.8 \text{ ft}
+\end{aligned}$$
+
 ## Citation
 
 Publication link
