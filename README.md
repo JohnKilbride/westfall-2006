@@ -22,6 +22,16 @@ $D_{i}$ = top-diameter (in.) within tree *i*
 
 $DBH_i$ = diameter at breast height (in.) of tree *i*
 
+$CC_{1i}$, $CC_{2i}$, $CC_{3i}$ = The crown class indicators of tree *i*. These are a set of one-hot encoded variables. 
+
+$$
+CC_{ki} = \begin{cases}
+  k = 1, \; = 1 & \text{intermediate, dead; 0 otherwise} \\
+  k = 2, \; = 1 & \text{dominant, codominant, open grown; 0 otherwise} \\
+  k = 3, \; = 1 & \text{overtopped; 0 otherwise}
+\end{cases}
+$$
+
 $TC_i$ = The tree class of tree *i*. TC is an integer coded value between 1 and 3.
 
 $$
@@ -29,16 +39,6 @@ TC_i = \begin{cases}
   1 & \text{preferred} \\
   2 & \text{acceptable} \\
   3 & \text{rough/rotten cull, dead}
-\end{cases}
-$$
-
-$CC_{ki}$ = The crown class indicators of tree *i*. These are a set of one-hot encoded variables. 
-
-$$
-CC_{ki} = \begin{cases}
-  k = 1, \; = 1 & \text{intermediate, dead; 0 otherwise} \\
-  k = 2, \; = 1 & \text{dominant, codominant, open grown; 0 otherwise} \\
-  k = 3, \; = 1 & \text{overtopped; 0 otherwise}
 \end{cases}
 $$
 
