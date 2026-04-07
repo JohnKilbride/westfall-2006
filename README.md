@@ -10,7 +10,7 @@
 
 ## Overview
 
-This package provides `predict_height`, a function that predicts tree height (ft) at a given top diameter using the Chapman-Richards allometric model from Westfall and Laustsen (2006). It supports 18 species groups in Maine and accepts diameter at breast height (DBH, inches), compacted crown ratio (percent), tree class, crown class, and an optional top diameter (inches). Setting `top_diam_in=0` (the default) returns total tree height; providing a non-zero top diameter returns the height to that stem diameter, enabling estimation of merchantable bole height. Scalar inputs return a single float; array inputs return a NumPy array, making the function suitable for both individual-tree and stand-level predictions.
+This package provides `predict_height_westfall`, a function that predicts tree height (ft) at a given top diameter using the Chapman-Richards allometric model from Westfall and Laustsen (2006). It supports 18 species groups in Maine and accepts diameter at breast height (DBH, inches), compacted crown ratio (percent), tree class, crown class, and an optional top diameter (inches). Setting `top_diam_in=0` (the default) returns total tree height; providing a non-zero top diameter returns the height to that stem diameter, enabling estimation of merchantable bole height. Scalar inputs return a single float; array inputs return a NumPy array, making the function suitable for both individual-tree and stand-level predictions.
 
 ## Model description
 
@@ -76,9 +76,9 @@ H_{i0} &= 75.0 \text{ ft}
 \end{aligned}$$
 
 ```python
-from westfall_2006 import predict_height
+from westfall_2006 import predict_height_westfall
 
-total_height = predict_height(
+total_height = predict_height_westfall(
     species_group = 12,
     dbh_in = 15.5,
     ccr_pct = 40,
@@ -102,7 +102,7 @@ H_{i4} &= 56.9 \text{ ft}
 \end{aligned}$$
 
 ```python
-bole_height = predict_height(
+bole_height = predict_height_westfall(
     species_group = 12,
     dbh_in = 15.5,
     ccr_pct = 40,
@@ -126,7 +126,7 @@ H_{i9} &= 39.8 \text{ ft}
 \end{aligned}$$
 
 ```python
-sawlog_height = predict_height(
+sawlog_height = predict_height_westfall(
     species_group=12,
     dbh_in=15.5,
     ccr_pct=40,

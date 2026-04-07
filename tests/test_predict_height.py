@@ -1,6 +1,6 @@
 import numpy as np
 
-from westfall_2006 import predict_height
+from westfall_2006 import predict_height_westfall
 
 
 class TestReadmeExample:
@@ -35,7 +35,7 @@ class TestReadmeExample:
         The paper reports approximately 75.0 ft.
         """
         assert (
-            predict_height(
+            predict_height_westfall(
                 self.species_group, self.dbh, self.ccr,
                 self.tree_class, self.crown_class, 0.0,
             )
@@ -52,7 +52,7 @@ class TestReadmeExample:
         The paper reports approximately 56.9 ft.
         """
         assert (
-            predict_height(
+            predict_height_westfall(
                 self.species_group, self.dbh, self.ccr,
                 self.tree_class, self.crown_class, 4.0,
             )
@@ -69,7 +69,7 @@ class TestReadmeExample:
         The paper reports approximately 39.8 ft.
         """
         assert (
-            predict_height(
+            predict_height_westfall(
                 self.species_group, self.dbh, self.ccr,
                 self.tree_class, self.crown_class, 9.0,
             )
@@ -103,7 +103,7 @@ class TestSoftwoodDominant:
         Total height prediction (top diameter = 0).
         """
         assert (
-            predict_height(
+            predict_height_westfall(
                 self.species_group, self.dbh, self.ccr,
                 self.tree_class, self.crown_class, 0.0,
             )
@@ -115,7 +115,7 @@ class TestSoftwoodDominant:
         Bole height prediction (4-in. top diameter).
         """
         assert (
-            predict_height(
+            predict_height_westfall(
                 self.species_group, self.dbh, self.ccr,
                 self.tree_class, self.crown_class, 4.0,
             )
@@ -127,7 +127,7 @@ class TestSoftwoodDominant:
         Sawlog height prediction (9-in. top diameter).
         """
         assert (
-            predict_height(
+            predict_height_westfall(
                 self.species_group, self.dbh, self.ccr,
                 self.tree_class, self.crown_class, 9.0,
             )
@@ -161,7 +161,7 @@ class TestOvertoppedRough:
         Total height prediction (top diameter = 0).
         """
         assert (
-            predict_height(
+            predict_height_westfall(
                 self.species_group, self.dbh, self.ccr,
                 self.tree_class, self.crown_class, 0.0,
             )
@@ -173,7 +173,7 @@ class TestOvertoppedRough:
         Bole height prediction (4-in. top diameter).
         """
         assert (
-            predict_height(
+            predict_height_westfall(
                 self.species_group, self.dbh, self.ccr,
                 self.tree_class, self.crown_class, 4.0,
             )
@@ -207,7 +207,7 @@ class TestDeadTree:
         Total height prediction (top diameter = 0).
         """
         assert (
-            predict_height(
+            predict_height_westfall(
                 self.species_group, self.dbh, self.ccr,
                 self.tree_class, self.crown_class, 0.0,
             )
@@ -219,7 +219,7 @@ class TestDeadTree:
         Bole height prediction (4-in. top diameter).
         """
         assert (
-            predict_height(
+            predict_height_westfall(
                 self.species_group, self.dbh, self.ccr,
                 self.tree_class, self.crown_class, 4.0,
             )
@@ -229,7 +229,7 @@ class TestDeadTree:
 
 class TestVectorized:
     """
-    Test vectorization by passing arrays to predict_height.
+    Test vectorization by passing arrays to predict_height_westfall.
 
     Uses the same trees from the scalar test classes, all
     evaluated with species group 12 and codominant/acceptable
@@ -246,7 +246,7 @@ class TestVectorized:
 
     def test_total_height(self):
         """Vectorized total height matches individual scalar calls."""
-        result = predict_height(
+        result = predict_height_westfall(
             self.species_group, self.dbh, self.ccr,
             self.tree_class, self.crown_class, 0.0,
         )
@@ -261,7 +261,7 @@ class TestVectorized:
 
     def test_bole_height(self):
         """Vectorized bole height (4-in. top diameter)."""
-        result = predict_height(
+        result = predict_height_westfall(
             self.species_group, self.dbh, self.ccr,
             self.tree_class, self.crown_class, 4.0,
         )
@@ -277,7 +277,7 @@ class TestVectorized:
     def test_vectorized_top_diameter(self):
         """Vectorized with varying top diameters."""
         top_diam = np.array([0.0, 4.0, 9.0, 0.0])
-        result = predict_height(
+        result = predict_height_westfall(
             self.species_group, self.dbh, self.ccr,
             self.tree_class, self.crown_class, top_diam,
         )
@@ -294,7 +294,7 @@ class TestVectorized:
 
     def test_list_input(self):
         """List inputs produce the same results as numpy arrays."""
-        result = predict_height(
+        result = predict_height_westfall(
             self.species_group,
             [15.5, 20.0, 12.0, 18.0],
             [40.0, 55.0, 30.0, 25.0],
