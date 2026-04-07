@@ -48,7 +48,7 @@ def _encode_tree_class(tree_class: str) -> int:
     return TREE_CLASS_ENCODING[key]
 
 
-def predict_height(
+def predict_height_westfall(
     species_group: int,
     dbh_in: Union[float, ArrayLike],
     ccr_pct: Union[float, ArrayLike],
