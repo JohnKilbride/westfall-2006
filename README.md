@@ -47,7 +47,7 @@ $\beta_0 \text{--} \beta_6$ = fixed-effects population parameters
 
 ## Example Calculation
 
-Westfall and Laustsen (2006) provided an example of how to apply the equations using a poplar tree (**species group** = 15) with the following attributes:
+Westfall and Laustsen (2006) provided an example of how to apply the equations using a poplar tree (**species group** = 12) with the following attributes:
 - **dbh** = 15.5 in.
 - **Compacted crown ratio** = 40 percent
 - **Tree class** = acceptable (TC = 2)
@@ -65,6 +65,20 @@ H_{i0} &= (91.5048) \cdot (0.7943) \cdot \exp\left(0.3436 + (0.01)^{0.1422}\righ
 H_{i0} &= 75.0 \text{ ft}
 \end{aligned}$$
 
+```python
+from westfall_2006 import predict_height
+
+total_height = predict_height(
+    species_group=12,
+    dbh_in=15.5,
+    ccr_pct=40,
+    tree_class="acceptable",
+    crown_class="codominant",
+    top_diam_in=0.0,
+)
+# total_height => 75.0 ft
+```
+
 ### 2) Prediction of bole height (4-in. top diameter)
 
 Conpute the top height of the 4-in. diameter bole.
@@ -77,6 +91,18 @@ H_{i4} &= (74.5444) \cdot (0.7943) \cdot \exp\left(0.3436 + (0.2681)^{0.1422}\ri
 H_{i4} &= 56.9 \text{ ft}
 \end{aligned}$$
 
+```python
+bole_height = predict_height(
+    species_group=12,
+    dbh_in=15.5,
+    ccr_pct=40,
+    tree_class="acceptable",
+    crown_class="codominant",
+    top_diam_in=4.0,
+)
+# bole_height => 56.9 ft
+```
+
 ### 3) Prediction of sawlog height (9-in. top diameter)
 
 Conpute the top height of the 9-in. diameter bole.
@@ -88,6 +114,18 @@ H_{i9} &= \left(-4.2401(9) + 84.2529(0) + 91.5048(1) + 78.7788(0)\right) \\
 H_{i9} &= (53.3439) \cdot (0.7943) \cdot \exp\left(0.3436 + (0.5906)^{0.1422}\right) \\
 H_{i9} &= 39.8 \text{ ft}
 \end{aligned}$$
+
+```python
+sawlog_height = predict_height(
+    species_group=12,
+    dbh_in=15.5,
+    ccr_pct=40,
+    tree_class="acceptable",
+    crown_class="codominant",
+    top_diam_in=9.0,
+)
+# sawlog_height => 39.8 ft
+```
 
 ## Citation
 
