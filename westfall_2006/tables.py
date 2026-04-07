@@ -4,7 +4,7 @@ import csv
 from pathlib import Path
 from typing import Dict, Tuple
 
-_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+_DATA_DIR = Path(__file__).resolve().parent / "data"
 
 
 def _load_coefficients() -> Dict[int, Tuple[float, ...]]:

@@ -11,3 +11,6 @@ dependencies = ["numpy"]
 
 [tool.setuptools.packages.find]
 include = ["westfall_2006*"]
+
+[tool.setuptools.package-data]
+westfall_2006 = ["data/*.csv"]
