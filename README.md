@@ -2,9 +2,13 @@
 
 # Westfall & Laustsen (2006): Height-to-Diameter Model for Maine Tree Species
 
+[![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Forest Science](https://img.shields.io/badge/Forest%20Science-Allometry-228B22)](.)
+
 <img src="figures/poplar_height_vs_diameter.png" alt="Poplar height vs. diameter" width="500"/>
 
-<sub>Predicted height vs. diameter at breast height (DBH) for a hypothetical poplar using the allometric model  from Westfall and Laustsen (2006).</sub>
+<sub>Predicted height vs. diameter at breast height (DBH) for a hypothetical poplar using the allometric model from Westfall and Laustsen (2006).</sub>
 
 </div>
 
