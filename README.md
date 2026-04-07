@@ -91,9 +91,7 @@ H_{i9} &= 39.8 \text{ ft}
 
 ## Citation
 
-Publication link
-
-If you use this library, please cite Westfall and Laustsen (2006).
+If you use this library, please cite [Westfall and Laustsen (2006)](https://academic.oup.com/njaf/article-abstract/23/4/241/4779984).
 
 ```{bibtex}
 @article{westfall2006merchantable,
