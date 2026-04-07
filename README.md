@@ -131,12 +131,12 @@ H_{i9} &= 39.8 \text{ ft}
 
 ```python
 sawlog_height = predict_height_westfall(
-    species_group=12,
-    dbh_in=15.5,
-    ccr_pct=40,
-    tree_class="acceptable",
-    crown_class="codominant",
-    top_diam_in=9.0,
+    species_group = 12,
+    dbh_in = 15.5,
+    ccr_pct = 40,
+    tree_class = "acceptable",
+    crown_class = "codominant",
+    top_diam_in = 9.0,
 )
 # sawlog_height => 39.8 ft
 ```
