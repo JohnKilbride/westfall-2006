@@ -49,11 +49,11 @@ def _encode_tree_class(tree_class: str) -> int:
 
 
 def predict_height_westfall(
-    species_group: int,
+    species_group: Union[int, ArrayLike],
     dbh_in: Union[float, ArrayLike],
     ccr_pct: Union[float, ArrayLike],
-    tree_class: str,
-    crown_class: str,
+    tree_class: Union[str, ArrayLike],
+    crown_class: Union[str, ArrayLike],
     top_diam_in: Union[float, ArrayLike] = 0.0,
 ) -> Union[float, NDArray]:
     """Predict tree height (ft) at a given top diameter.
@@ -61,17 +61,23 @@ def predict_height_westfall(
     Implements the Chapman-Richards model from Westfall and Laustsen (2006)
     for 18 species groups in Maine.
 
+    All six parameters accept either a scalar value or an array-like, enabling
+    vectorized prediction over mixed-species, mixed-class stands in a single
+    call. When any parameter is array-like, all parameters are broadcast
+    together and a NumPy array is returned; otherwise a single float is
+    returned.
+
     Parameters
     ----------
-    species_group : int
+    species_group : int or array_like of int
         Species group number (1–18).
     dbh_in : float or array_like
         Diameter at breast height (inches).
     ccr_pct : float or array_like
         Compacted crown ratio (percent, 0–100).
-    tree_class : str
+    tree_class : str or array_like of str
         Tree class: "preferred", "acceptable", "rough", "rotten", or "dead".
-    crown_class : str
+    crown_class : str or array_like of str
         Crown class: "dead", "intermediate", "dominant", "codominant",
         "open grown", or "overtopped".
     top_diam_in : float or array_like, optional
@@ -83,34 +89,55 @@ def predict_height_westfall(
     float or numpy.ndarray
         Predicted height in feet.
     """
-    if species_group not in VALID_GROUPS:
+    is_array = any(
+        isinstance(v, (list, np.ndarray))
+        for v in (species_group, dbh_in, ccr_pct, tree_class, crown_class, top_diam_in)
+    )
+
+    if not is_array:
+        if species_group not in VALID_GROUPS:
+            raise ValueError(
+                f"Invalid species_group {species_group}. Must be between 1 and 18."
+            )
+        b = COEFFICIENTS[species_group]
+        cc1, cc2, cc3 = _encode_crown_class(crown_class)
+        tc = _encode_tree_class(tree_class)
+        asymptote = b[0] * top_diam_in + b[1] * cc1 + b[2] * cc2 + b[3] * cc3
+        base = 1.0 - math.exp(-b[4] * dbh_in)
+        exponent = b[5] * ccr_pct + b[6] * tc + pow(top_diam_in / dbh_in + 0.01, b[7])
+        return asymptote * pow(base, exponent)
+
+    # Array path: convert all inputs
+    sg = np.asarray(species_group)
+    dbh_in = np.asarray(dbh_in, dtype=float)
+    ccr_pct = np.asarray(ccr_pct, dtype=float)
+    top_diam_in = np.asarray(top_diam_in, dtype=float)
+
+    # Validate all species group values
+    invalid = [int(g) for g in sg.flat if int(g) not in VALID_GROUPS]
+    if invalid:
         raise ValueError(
-            f"Invalid species_group {species_group}. Must be between 1 and 18."
+            f"Invalid species_group(s) {invalid}. Must be between 1 and 18."
         )
 
-    b = COEFFICIENTS[species_group]
-    cc1, cc2, cc3 = _encode_crown_class(crown_class)
-    tc = _encode_tree_class(tree_class)
-
-    is_array = any(isinstance(v, (list, np.ndarray)) for v in (dbh_in, ccr_pct, top_diam_in))
-
-    if is_array:
-        dbh_in = np.asarray(dbh_in, dtype=float)
-        ccr_pct = np.asarray(ccr_pct, dtype=float)
-        top_diam_in = np.asarray(top_diam_in, dtype=float)
-        exp = np.exp
-        power = np.power
+    # Build coefficient arrays indexed by species group.
+    # Result shape: (8,) when sg is 0-d, (*sg.shape, 8) when sg is n-d.
+    b_rows = [COEFFICIENTS[int(g)] for g in sg.flat]
+    if sg.ndim == 0:
+        b_mat = np.array(b_rows[0], dtype=float)        # shape (8,)
     else:
-        exp = math.exp
-        power = pow
+        b_mat = np.array(b_rows, dtype=float).reshape(*sg.shape, 8)
+    b0, b1, b2, b3, b4, b5, b6, b7 = (b_mat[..., i] for i in range(8))
 
-    # Asymptote term
-    asymptote = b[0] * top_diam_in + b[1] * cc1 + b[2] * cc2 + b[3] * cc3
+    # Encode tree_class (scalar string or array of strings)
+    tc = np.frompyfunc(_encode_tree_class, 1, 1)(np.asarray(tree_class)).astype(float)
 
-    # Chapman-Richards base
-    base = 1.0 - exp(-b[4] * dbh_in)
+    # Encode crown_class (scalar string or array of strings)
+    cc1, cc2, cc3 = np.frompyfunc(_encode_crown_class, 1, 3)(np.asarray(crown_class))
+    cc1, cc2, cc3 = cc1.astype(float), cc2.astype(float), cc3.astype(float)
 
-    # Shape exponent
-    exponent = b[5] * ccr_pct + b[6] * tc + power(top_diam_in / dbh_in + 0.01, b[7])
-
-    return asymptote * power(base, exponent)
+    # Chapman-Richards computation
+    asymptote = b0 * top_diam_in + b1 * cc1 + b2 * cc2 + b3 * cc3
+    base = 1.0 - np.exp(-b4 * dbh_in)
+    exponent = b5 * ccr_pct + b6 * tc + np.power(top_diam_in / dbh_in + 0.01, b7)
+    return asymptote * np.power(base, exponent)
