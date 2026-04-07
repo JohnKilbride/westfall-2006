@@ -47,7 +47,7 @@ Predicts tree height (ft) at a specified top diameter using the Chapman-Richards
 
 ## Species Groups
 
-The `species_group` parameter accepts integers 1–18. The table below lists each group, its name, and the constituent FIA species codes (SPCD).
+The `species_group` parameter accepts integers 1–18. The table below lists the species group number, the group name, the species name, and the FIA species codes (SPCD) that correspond to each species.
 
 | Group | Species Group Name | Species Names | FIA SPCD |
 | :---: | :--- | :--- | :--- |
