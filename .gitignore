@@ -3,3 +3,4 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+paper/.ipynb_checkpoints/nrs_2006_westfall_002-checkpoint.pdf
