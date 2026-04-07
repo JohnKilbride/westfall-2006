@@ -151,9 +151,9 @@ def predict_height_westfall(
 
     Parameters
     ----------
-    species_group : int or array_like of int, optional
-        Species group number (1–18).  Mutually exclusive with ``fia_spcd``;
-        exactly one must be provided.
+    species_group : int or array_like of int
+        Species group number (1–18).  This is the primary way to specify the
+        species.  Pass ``None`` only when supplying ``fia_spcd`` instead.
     dbh_in : float or array_like
         Diameter at breast height (inches, > 0).
     ccr_pct : float or array_like
@@ -167,9 +167,9 @@ def predict_height_westfall(
         Top diameter (inches, >= 0) at which to predict height. Default is 0,
         which gives total tree height.
     fia_spcd : int or array_like of int, optional (keyword-only)
-        FIA species code(s) (e.g. 746 for Quaking aspen). Converted to species
-        group numbers before prediction. Mutually exclusive with
-        ``species_group``; exactly one must be provided.
+        FIA species code(s) (e.g. 746 for Quaking aspen) as an alternative to
+        ``species_group``.  Converted to species group numbers before
+        prediction.  Mutually exclusive with ``species_group``.
 
     Returns
     -------
