@@ -45,31 +45,6 @@ Predicts tree height (ft) at a specified top diameter using the Chapman-Richards
 
 **Returns:** Predicted height in feet as a `float` (scalar inputs) or `numpy.ndarray` (array inputs).
 
-## Species Groups
-
-The `species_group` parameter accepts integers 1–18. The table below lists the species group number, the group name, the species name, and the FIA species codes (SPCD) that correspond to each species.
-
-| Group | Species Group Name | Species Names | FIA SPCD |
-| :---: | :--- | :--- | :--- |
-| 1 | Miscellaneous softwood | Larch (introduced), Norway spruce, Jack pine, Red pine, Pitch pine, Pond pine, Scotch pine | 6212, 91, 105, 125, 126, 128, 130 |
-| 2 | Tamarack (native) | Tamarack (native) | 71 |
-| 3 | Eastern white pine | Eastern white pine | 129 |
-| 4 | White spruce | White spruce | 94 |
-| 5 | Black spruce | Black spruce | 95 |
-| 6 | Red spruce | Red spruce | 97 |
-| 7 | Balsam fir | Balsam fir | 12 |
-| 8 | Eastern hemlock | Eastern hemlock | 261 |
-| 9 | Northern white-cedar | Northern white-cedar | 241 |
-| 10 | Sugar maple | Sugar maple | 318 |
-| 11 | Ash | White ash, Black ash, Green ash | 541, 543, 544 |
-| 12 | Poplars | Balsam poplar, Eastern cottonwood, Bigtooth aspen, Swamp cottonwood, Quaking aspen | 741, 742, 743, 744, 746 |
-| 13 | Miscellaneous hardwood | Shagbark hickory, Black cherry, Scarlet oak, Northern red oak, Black oak, American basswood | 407, 762, 806, 833, 837, 951 |
-| 14 | Yellow birch | Yellow birch | 371 |
-| 15 | Paper birch | Paper birch | 375 |
-| 16 | Other hardwood | Maple, Striped maple, Silver maple, Mountain maple, Norway maple, Ohio buckeye, Serviceberry, Sweet birch, Gray birch, American hornbeam, Butternut, Osage-orange, Apple, Eastern hophornbeam, Pin cherry, Chokecherry, White oak, Swamp white oak, Willow, Black willow, White willow, American mountain-ash, Elm, American elm | 310, 315, 317, 319, 320, 331, 356, 372, 379, 391, 601, 641, 660, 701, 761, 763, 802, 804, 920, 922, 927, 935, 970, 972 |
-| 17 | Red maple | Red maple | 316 |
-| 18 | American beech | American beech | 531 |
-
 ## Model description
 
 Here, we show Equation (2) from Westfall and Laustsen (2006) modified to remove the error term and the random-effects parameters. The model is based on the Chapman-Richards growth equation (Richards 1959).
@@ -122,6 +97,31 @@ Westfall and Laustsen (2006) provided the following example of how to apply the 
 - **Crown class** = codominant (CC₁ = 0; CC₂ = 1; CC₃ = 0)
 
 We demonstate that this implementation reproduces the same results. 
+
+## Species Groups
+
+The `species_group` parameter accepts integers 1–18. The table below lists the species group number, the group name, the species name, and the FIA species codes (SPCD) that correspond to each species.
+
+| Group | Species Group Name | Species Names | FIA SPCD |
+| :---: | :--- | :--- | :--- |
+| 1 | Miscellaneous softwood | Larch (introduced), Norway spruce, Jack pine, Red pine, Pitch pine, Pond pine, Scotch pine | 6212, 91, 105, 125, 126, 128, 130 |
+| 2 | Tamarack (native) | Tamarack (native) | 71 |
+| 3 | Eastern white pine | Eastern white pine | 129 |
+| 4 | White spruce | White spruce | 94 |
+| 5 | Black spruce | Black spruce | 95 |
+| 6 | Red spruce | Red spruce | 97 |
+| 7 | Balsam fir | Balsam fir | 12 |
+| 8 | Eastern hemlock | Eastern hemlock | 261 |
+| 9 | Northern white-cedar | Northern white-cedar | 241 |
+| 10 | Sugar maple | Sugar maple | 318 |
+| 11 | Ash | White ash, Black ash, Green ash | 541, 543, 544 |
+| 12 | Poplars | Balsam poplar, Eastern cottonwood, Bigtooth aspen, Swamp cottonwood, Quaking aspen | 741, 742, 743, 744, 746 |
+| 13 | Miscellaneous hardwood | Shagbark hickory, Black cherry, Scarlet oak, Northern red oak, Black oak, American basswood | 407, 762, 806, 833, 837, 951 |
+| 14 | Yellow birch | Yellow birch | 371 |
+| 15 | Paper birch | Paper birch | 375 |
+| 16 | Other hardwood | Maple, Striped maple, Silver maple, Mountain maple, Norway maple, Ohio buckeye, Serviceberry, Sweet birch, Gray birch, American hornbeam, Butternut, Osage-orange, Apple, Eastern hophornbeam, Pin cherry, Chokecherry, White oak, Swamp white oak, Willow, Black willow, White willow, American mountain-ash, Elm, American elm | 310, 315, 317, 319, 320, 331, 356, 372, 379, 391, 601, 641, 660, 701, 761, 763, 802, 804, 920, 922, 927, 935, 970, 972 |
+| 17 | Red maple | Red maple | 316 |
+| 18 | American beech | American beech | 531 |
 
 ### 1) Prediction of total height
 
