@@ -86,8 +86,50 @@ def _fia_spcd_to_species_group(
     return np.vectorize(SPECIES_TO_GROUP.__getitem__)(arr)
 
 
-def predict_height_westfall(
+def _validate_inputs(
     species_group: Union[int, ArrayLike],
+    dbh_in: Union[float, ArrayLike],
+    ccr_pct: Union[float, ArrayLike],
+    top_diam_in: Union[float, ArrayLike],
+) -> None:
+    """Validate numeric inputs to predict_height_westfall.
+
+    Checks that species_group values are recognised, dbh_in is positive,
+    ccr_pct is in [0, 100], and top_diam_in is non-negative.  String
+    inputs (tree_class and crown_class) are validated implicitly by their
+    respective encoding functions.
+
+    Raises
+    ------
+    ValueError
+        If any input fails a range or validity check.
+    """
+    # --- species_group ---
+    sg_arr = np.asarray(species_group)
+    invalid_sg = [int(g) for g in sg_arr.flat if int(g) not in VALID_GROUPS]
+    if invalid_sg:
+        raise ValueError(
+            f"Invalid species_group(s) {invalid_sg}. Must be between 1 and 18."
+        )
+
+    # --- dbh_in ---
+    dbh_arr = np.asarray(dbh_in, dtype=float)
+    if np.any(dbh_arr <= 0):
+        raise ValueError("dbh_in must be positive (> 0).")
+
+    # --- ccr_pct ---
+    ccr_arr = np.asarray(ccr_pct, dtype=float)
+    if np.any((ccr_arr < 0) | (ccr_arr > 100)):
+        raise ValueError("ccr_pct must be in [0, 100].")
+
+    # --- top_diam_in ---
+    top_arr = np.asarray(top_diam_in, dtype=float)
+    if np.any(top_arr < 0):
+        raise ValueError("top_diam_in must be non-negative (>= 0).")
+
+
+def predict_height_westfall(
+    species_group: Optional[Union[int, ArrayLike]],
     dbh_in: Union[float, ArrayLike],
     ccr_pct: Union[float, ArrayLike],
     tree_class: Union[str, ArrayLike],
@@ -110,9 +152,10 @@ def predict_height_westfall(
     Parameters
     ----------
     species_group : int or array_like of int
-        Species group number (1–18).
+        Species group number (1–18).  This is the primary way to specify the
+        species.  Pass ``None`` only when supplying ``fia_spcd`` instead.
     dbh_in : float or array_like
-        Diameter at breast height (inches).
+        Diameter at breast height (inches, > 0).
     ccr_pct : float or array_like
         Compacted crown ratio (percent, 0–100).
     tree_class : str or array_like of str
@@ -121,67 +164,87 @@ def predict_height_westfall(
         Crown class: "dead", "intermediate", "dominant", "codominant",
         "open grown", or "overtopped".
     top_diam_in : float or array_like, optional
-        Top diameter (inches) at which to predict height. Default is 0,
+        Top diameter (inches, >= 0) at which to predict height. Default is 0,
         which gives total tree height.
     fia_spcd : int or array_like of int, optional (keyword-only)
-        FIA species code(s) (e.g. 746 for Quaking aspen). Converted to species
-        group numbers before prediction. Must provide either this or
-        ``species_group``.
+        FIA species code(s) (e.g. 746 for Quaking aspen) as an alternative to
+        ``species_group``.  Converted to species group numbers before
+        prediction.  Mutually exclusive with ``species_group``.
 
     Returns
     -------
     float or numpy.ndarray
         Predicted height in feet.
+
+    Raises
+    ------
+    ValueError
+        If neither or both of ``species_group`` and ``fia_spcd`` are provided,
+        or if any input fails a range/validity check.
     """
+    # Convert FIA species codes to group numbers when the caller uses fia_spcd
+    # instead of the primary species_group parameter.
+    if species_group is None and fia_spcd is None:
+        raise ValueError("Either species_group or fia_spcd must be provided.")
+    if species_group is not None and fia_spcd is not None:
+        raise ValueError(
+            "Provide either species_group or fia_spcd, not both."
+        )
+    if fia_spcd is not None:
+        species_group = _fia_spcd_to_species_group(fia_spcd)
+
+    # Validate all numeric inputs before any computation.
+    _validate_inputs(species_group, dbh_in, ccr_pct, top_diam_in)
+
+    # Choose the scalar or vectorized code path based on whether any input is
+    # a list or ndarray.  Scalars take the faster pure-Python path; mixed or
+    # array inputs are handled by NumPy broadcasting below.
     is_array = any(
         isinstance(v, (list, np.ndarray))
         for v in (species_group, dbh_in, ccr_pct, tree_class, crown_class, top_diam_in)
     )
 
+    # --- Scalar path ---
     if not is_array:
-        if species_group not in VALID_GROUPS:
-            raise ValueError(
-                f"Invalid species_group {species_group}. Must be between 1 and 18."
-            )
-        b = COEFFICIENTS[species_group]
-        cc1, cc2, cc3 = _encode_crown_class(crown_class)
-        tc = _encode_tree_class(tree_class)
+        b = COEFFICIENTS[species_group]  # (β₀ … β₇) for this species group
+        cc1, cc2, cc3 = _encode_crown_class(crown_class)  # one-hot crown class indicators
+        tc = _encode_tree_class(tree_class)                # integer tree class code (1–3)
+
+        # β₀·D + β₁·CC₁ + β₂·CC₂ + β₃·CC₃  (top-diameter-scaled asymptote)
         asymptote = b[0] * top_diam_in + b[1] * cc1 + b[2] * cc2 + b[3] * cc3
+        # (1 − e^(−β₄·DBH))  (Chapman-Richards base term)
         base = 1.0 - math.exp(-b[4] * dbh_in)
+        # β₅·CR + β₆·TC + (D/DBH + 0.01)^β₇  (exponent controlling curve shape)
         exponent = b[5] * ccr_pct + b[6] * tc + pow(top_diam_in / dbh_in + 0.01, b[7])
+
         return asymptote * pow(base, exponent)
 
-    # Array path: convert all inputs
+    # --- Array path ---
+    # Convert all inputs to NumPy arrays so they can be broadcast together.
     sg = np.asarray(species_group)
     dbh_in = np.asarray(dbh_in, dtype=float)
     ccr_pct = np.asarray(ccr_pct, dtype=float)
     top_diam_in = np.asarray(top_diam_in, dtype=float)
 
-    # Validate all species group values
-    invalid = [int(g) for g in sg.flat if int(g) not in VALID_GROUPS]
-    if invalid:
-        raise ValueError(
-            f"Invalid species_group(s) {invalid}. Must be between 1 and 18."
-        )
-
-    # Build coefficient arrays indexed by species group.
-    # Result shape: (8,) when sg is 0-d, (*sg.shape, 8) when sg is n-d.
+    # Look up (β₀ … β₇) for every species group in the input.
+    # b_mat shape: (8,) for a 0-d species_group, (*sg.shape, 8) otherwise,
+    # so that b_mat[..., k] broadcasts against the other input arrays.
     b_rows = [COEFFICIENTS[int(g)] for g in sg.flat]
     if sg.ndim == 0:
         b_mat = np.array(b_rows[0], dtype=float)        # shape (8,)
     else:
         b_mat = np.array(b_rows, dtype=float).reshape(*sg.shape, 8)
-        
+
     b0, b1, b2, b3, b4, b5, b6, b7 = (b_mat[..., i] for i in range(8))
 
-    # Encode tree_class (scalar string or array of strings)
+    # Encode string inputs element-wise using frompyfunc, which applies a
+    # Python callable across an array and returns an object array; cast to
+    # float for arithmetic.
     tc = np.frompyfunc(_encode_tree_class, 1, 1)(np.asarray(tree_class)).astype(float)
-
-    # Encode crown_class (scalar string or array of strings)
     cc1, cc2, cc3 = np.frompyfunc(_encode_crown_class, 1, 3)(np.asarray(crown_class))
     cc1, cc2, cc3 = cc1.astype(float), cc2.astype(float), cc3.astype(float)
 
-    # Chapman-Richards computation
+    # Chapman-Richards computation — mirrors the scalar path above.
     asymptote = b0 * top_diam_in + b1 * cc1 + b2 * cc2 + b3 * cc3
     base = 1.0 - np.exp(-b4 * dbh_in)
     exponent = b5 * ccr_pct + b6 * tc + np.power(top_diam_in / dbh_in + 0.01, b7)

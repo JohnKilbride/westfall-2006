@@ -20,12 +20,14 @@ Setting `top_diam_in=0` (the default) returns total tree height; providing a non
 
 ```python
 predict_height_westfall(
-    species_group: int | array_like,
+    species_group: int | array_like | None,
     dbh_in: float | array_like,
     ccr_pct: float | array_like,
     tree_class: str | array_like,
     crown_class: str | array_like,
     top_diam_in: float | array_like = 0.0,
+    *,
+    fia_spcd: int | array_like | None = None,
 ) -> float | numpy.ndarray
 ```
 
@@ -33,12 +35,13 @@ Predicts tree height (ft) at a specified top diameter using the Chapman-Richards
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `species_group` | `int` or array | Species group number (1–18). |
-| `dbh_in` | `float` or array | Diameter at breast height (inches). |
+| `species_group` | `int` or array | Species group number (1–18). Mutually exclusive with `fia_spcd`; exactly one must be provided. |
+| `dbh_in` | `float` or array | Diameter at breast height (inches, > 0). |
 | `ccr_pct` | `float` or array | Compacted crown ratio (percent, 0–100). |
 | `tree_class` | `str` or array | One of `"preferred"`, `"acceptable"`, `"rough"`, `"rotten"`, or `"dead"`. |
 | `crown_class` | `str` or array | One of `"dominant"`, `"codominant"`, `"intermediate"`, `"overtopped"`, `"open grown"`, or `"dead"`. |
-| `top_diam_in` | `float` or array | Top stem diameter (inches) at which to predict height. Defaults to `0.0` for total tree height. |
+| `top_diam_in` | `float` or array | Top stem diameter (inches, >= 0) at which to predict height. Defaults to `0.0` for total tree height. |
+| `fia_spcd` | `int` or array | FIA species code(s) (keyword-only). Converted to species group numbers before prediction. Mutually exclusive with `species_group`; exactly one must be provided. |
 
 **Returns:** Predicted height in feet as a `float` (scalar inputs) or `numpy.ndarray` (array inputs).
 

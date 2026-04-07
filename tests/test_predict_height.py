@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from westfall_2006 import predict_height_westfall
+from westfall_2006.model import _validate_inputs
 
 
 class TestReadmeExample:
@@ -319,3 +320,134 @@ class TestVectorized:
         assert result[1] == 76.55781961600512
         assert result[2] == 43.85727492152837
         assert result[3] == 68.84553875174208
+
+
+class TestFiaSpcd:
+    """
+    Tests that fia_spcd produces identical results to species_group.
+
+    FIA species codes used:
+      746  Quaking aspen   → group 12  (TestReadmeExample)
+      129  Eastern white pine → group 3   (TestDeadTree)
+      125  Red pine        → group 1   (TestSoftwoodDominant)
+      261  Eastern hemlock → group 8   (TestOvertoppedRough)
+    """
+
+    def test_scalar_fia_spcd_matches_species_group(self):
+        """fia_spcd=746 (Quaking aspen → group 12) gives the same result."""
+        expected = predict_height_westfall(12, 15.5, 40, "acceptable", "codominant")
+        result = predict_height_westfall(
+            None, 15.5, 40, "acceptable", "codominant", fia_spcd=746
+        )
+        assert result == expected
+
+    def test_scalar_fia_spcd_bole_height(self):
+        """fia_spcd scalar with non-zero top diameter matches species_group."""
+        expected = predict_height_westfall(3, 18.0, 25, "dead", "dead", 4.0)
+        result = predict_height_westfall(
+            None, 18.0, 25, "dead", "dead", 4.0, fia_spcd=129
+        )
+        assert result == expected
+
+    def test_array_fia_spcd_matches_species_group(self):
+        """Array of fia_spcd values produces the same result as species_group array."""
+        expected = predict_height_westfall(
+            [12, 1, 8, 3],
+            [15.5, 20.0, 12.0, 18.0],
+            [40.0, 55.0, 30.0, 25.0],
+            ["acceptable", "preferred", "rough", "dead"],
+            ["codominant", "dominant", "overtopped", "dead"],
+            0.0,
+        )
+        result = predict_height_westfall(
+            None,
+            [15.5, 20.0, 12.0, 18.0],
+            [40.0, 55.0, 30.0, 25.0],
+            ["acceptable", "preferred", "rough", "dead"],
+            ["codominant", "dominant", "overtopped", "dead"],
+            0.0,
+            fia_spcd=[746, 125, 261, 129],
+        )
+        np.testing.assert_array_equal(result, expected)
+
+    def test_neither_raises(self):
+        """Omitting both species_group and fia_spcd raises ValueError."""
+        with pytest.raises(ValueError, match="Either species_group or fia_spcd"):
+            predict_height_westfall(None, 15.5, 40, "acceptable", "codominant")
+
+    def test_both_raises(self):
+        """Providing both species_group and fia_spcd raises ValueError."""
+        with pytest.raises(ValueError, match="not both"):
+            predict_height_westfall(
+                12, 15.5, 40, "acceptable", "codominant", fia_spcd=746
+            )
+
+    def test_unknown_fia_spcd_raises(self):
+        """An unrecognised FIA species code raises ValueError."""
+        with pytest.raises(ValueError, match="Unknown FIA species code"):
+            predict_height_westfall(
+                None, 15.5, 40, "acceptable", "codominant", fia_spcd=99999
+            )
+
+
+class TestValidateInputs:
+    """Tests for _validate_inputs and the validation wired into predict_height_westfall."""
+
+    # Shared valid baseline values
+    _sg = 12
+    _dbh = 15.5
+    _ccr = 40.0
+    _top = 0.0
+
+    def test_invalid_species_group_scalar(self):
+        with pytest.raises(ValueError, match="Invalid species_group"):
+            predict_height_westfall(0, self._dbh, self._ccr, "acceptable", "codominant")
+
+    def test_invalid_species_group_19(self):
+        with pytest.raises(ValueError, match="Invalid species_group"):
+            predict_height_westfall(19, self._dbh, self._ccr, "acceptable", "codominant")
+
+    def test_invalid_species_group_array(self):
+        with pytest.raises(ValueError, match="Invalid species_group"):
+            predict_height_westfall(
+                [12, 99], [15.5, 15.5], [40, 40],
+                ["acceptable", "acceptable"], ["codominant", "codominant"],
+            )
+
+    def test_dbh_zero_raises(self):
+        with pytest.raises(ValueError, match="dbh_in must be positive"):
+            predict_height_westfall(self._sg, 0.0, self._ccr, "acceptable", "codominant")
+
+    def test_dbh_negative_raises(self):
+        with pytest.raises(ValueError, match="dbh_in must be positive"):
+            predict_height_westfall(self._sg, -1.0, self._ccr, "acceptable", "codominant")
+
+    def test_ccr_below_range_raises(self):
+        with pytest.raises(ValueError, match="ccr_pct must be in"):
+            predict_height_westfall(self._sg, self._dbh, -1.0, "acceptable", "codominant")
+
+    def test_ccr_above_range_raises(self):
+        with pytest.raises(ValueError, match="ccr_pct must be in"):
+            predict_height_westfall(self._sg, self._dbh, 101.0, "acceptable", "codominant")
+
+    def test_top_diam_negative_raises(self):
+        with pytest.raises(ValueError, match="top_diam_in must be non-negative"):
+            predict_height_westfall(
+                self._sg, self._dbh, self._ccr, "acceptable", "codominant", -1.0
+            )
+
+    def test_invalid_tree_class_raises(self):
+        with pytest.raises(ValueError, match="Invalid tree_class"):
+            predict_height_westfall(self._sg, self._dbh, self._ccr, "invalid", "codominant")
+
+    def test_invalid_crown_class_raises(self):
+        with pytest.raises(ValueError, match="Invalid crown_class"):
+            predict_height_westfall(self._sg, self._dbh, self._ccr, "acceptable", "invalid")
+
+    def test_validate_inputs_directly_valid(self):
+        """_validate_inputs does not raise for valid inputs."""
+        _validate_inputs(12, 15.5, 40.0, 0.0)
+
+    def test_validate_inputs_directly_array(self):
+        """_validate_inputs does not raise for valid array inputs."""
+        _validate_inputs([1, 12, 8], [10.0, 15.5, 12.0], [30.0, 40.0, 55.0], [0.0, 4.0, 9.0])
