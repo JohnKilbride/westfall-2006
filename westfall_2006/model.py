@@ -87,11 +87,11 @@ def _fia_spcd_to_species_group(
 
 
 def predict_height_westfall(
-    species_group: Union[int, ArrayLike] = None,
-    dbh_in: Union[float, ArrayLike] = None,
-    ccr_pct: Union[float, ArrayLike] = None,
-    tree_class: Union[str, ArrayLike] = None,
-    crown_class: Union[str, ArrayLike] = None,
+    species_group: Union[int, ArrayLike],
+    dbh_in: Union[float, ArrayLike],
+    ccr_pct: Union[float, ArrayLike],
+    tree_class: Union[str, ArrayLike],
+    crown_class: Union[str, ArrayLike],
     top_diam_in: Union[float, ArrayLike] = 0.0,
     *,
     fia_spcd: Optional[Union[int, ArrayLike]] = None,
@@ -109,8 +109,8 @@ def predict_height_westfall(
 
     Parameters
     ----------
-    species_group : int or array_like of int, optional
-        Species group number (1–18). Must provide either this or ``fia_spcd``.
+    species_group : int or array_like of int
+        Species group number (1–18).
     dbh_in : float or array_like
         Diameter at breast height (inches).
     ccr_pct : float or array_like
@@ -133,18 +133,6 @@ def predict_height_westfall(
     float or numpy.ndarray
         Predicted height in feet.
     """
-    if species_group is not None and fia_spcd is not None:
-        raise ValueError(
-            "Provide either 'species_group' or 'fia_spcd', not both."
-        )
-    if species_group is None and fia_spcd is None:
-        raise ValueError(
-            "Must provide either 'species_group' or 'fia_spcd'."
-        )
-
-    if fia_spcd is not None:
-        species_group = _fia_spcd_to_species_group(fia_spcd)
-
     is_array = any(
         isinstance(v, (list, np.ndarray))
         for v in (species_group, dbh_in, ccr_pct, tree_class, crown_class, top_diam_in)
@@ -183,18 +171,15 @@ def predict_height_westfall(
         b_mat = np.array(b_rows[0], dtype=float)        # shape (8,)
     else:
         b_mat = np.array(b_rows, dtype=float).reshape(*sg.shape, 8)
+        
     b0, b1, b2, b3, b4, b5, b6, b7 = (b_mat[..., i] for i in range(8))
 
     # Encode tree_class (scalar string or array of strings)
-    tc = np.asarray(
-        np.frompyfunc(_encode_tree_class, 1, 1)(np.asarray(tree_class)), dtype=float
-    )
+    tc = np.frompyfunc(_encode_tree_class, 1, 1)(np.asarray(tree_class)).astype(float)
 
     # Encode crown_class (scalar string or array of strings)
     cc1, cc2, cc3 = np.frompyfunc(_encode_crown_class, 1, 3)(np.asarray(crown_class))
-    cc1 = np.asarray(cc1, dtype=float)
-    cc2 = np.asarray(cc2, dtype=float)
-    cc3 = np.asarray(cc3, dtype=float)
+    cc1, cc2, cc3 = cc1.astype(float), cc2.astype(float), cc3.astype(float)
 
     # Chapman-Richards computation
     asymptote = b0 * top_diam_in + b1 * cc1 + b2 * cc2 + b3 * cc3
