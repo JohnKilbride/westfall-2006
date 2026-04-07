@@ -1,13 +1,36 @@
 [build-system]
 requires = ["setuptools>=61.0"]
-build-backend = "setuptools.backends._legacy:_Backend"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "westfall-2006"
 version = "0.1.0"
 description = "Merchantable and total height model for tree species in Maine (Westfall and Laustsen 2006)"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "John Kilbride" }
+]
 requires-python = ">=3.9"
 dependencies = ["numpy"]
+keywords = ["forestry", "allometric", "tree height", "FIA", "Chapman-Richards", "Maine"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+
+[project.urls]
+Homepage = "https://github.com/johnkilbride/westfall_height_to_diameter_2006"
+Repository = "https://github.com/johnkilbride/westfall_height_to_diameter_2006"
+Issues = "https://github.com/johnkilbride/westfall_height_to_diameter_2006/issues"
 
 [tool.setuptools.packages.find]
 include = ["westfall_2006*"]
