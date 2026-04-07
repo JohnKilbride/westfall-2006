@@ -1,18 +1,12 @@
 """Height-to-diameter model from Westfall and Laustsen (2006)."""
 
 import math
-from typing import List, Optional, Sequence, Union
+from typing import Optional, Sequence, Union
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
-from .tables import (
-    COEFFICIENTS,
-    GROUP_NAME_TO_NUMBER,
-    SPECIES_TO_GROUP,
-    VALID_GROUP_NAMES,
-    VALID_GROUPS,
-)
+from .tables import COEFFICIENTS, SPECIES_TO_GROUP, VALID_GROUPS
 
 CROWN_CLASS_ENCODING = {
     "intermediate": (1, 0, 0),
@@ -54,30 +48,90 @@ def _encode_tree_class(tree_class: str) -> int:
     return TREE_CLASS_ENCODING[key]
 
 
-def _resolve_species_group(
-    species_group: Optional[Union[int, str, Sequence[str]]] = None,
-    fia_spcd: Optional[Union[int, Sequence[int]]] = None,
-) -> int:
-    """Resolve species_group or fia_spcd input to a single group number.
+def _fia_spcd_to_species_group(
+    fia_spcd: Union[int, ArrayLike],
+) -> Union[int, NDArray]:
+    """Convert FIA species code(s) to species group number(s).
 
     Parameters
     ----------
-    species_group : int, str, or list of str, optional
-        Species group number (1–18) or species group name (e.g. "Poplars").
-        If a list of names is provided, all must resolve to the same group.
-    fia_spcd : int or list of int, optional
-        FIA species code (e.g. 746 for Quaking aspen). If a list is provided,
-        all codes must resolve to the same species group.
+    fia_spcd : int or array_like of int
+        FIA species code(s) to convert.
 
     Returns
     -------
-    int
-        The resolved species group number.
+    int or numpy.ndarray
+        Corresponding species group number(s).
 
     Raises
     ------
     ValueError
-        If inputs are invalid or ambiguous.
+        If any code is not recognised.
+    """
+    if isinstance(fia_spcd, int):
+        if fia_spcd not in SPECIES_TO_GROUP:
+            raise ValueError(
+                f"Unknown FIA species code {fia_spcd}. "
+                f"Valid codes: {sorted(SPECIES_TO_GROUP.keys())}"
+            )
+        return SPECIES_TO_GROUP[fia_spcd]
+
+    arr = np.asarray(fia_spcd)
+    unknown = [int(c) for c in arr.flat if int(c) not in SPECIES_TO_GROUP]
+    if unknown:
+        raise ValueError(
+            f"Unknown FIA species code(s) {unknown}. "
+            f"Valid codes: {sorted(SPECIES_TO_GROUP.keys())}"
+        )
+    return np.vectorize(SPECIES_TO_GROUP.__getitem__)(arr)
+
+
+def predict_height_westfall(
+    species_group: Union[int, ArrayLike] = None,
+    dbh_in: Union[float, ArrayLike] = None,
+    ccr_pct: Union[float, ArrayLike] = None,
+    tree_class: Union[str, ArrayLike] = None,
+    crown_class: Union[str, ArrayLike] = None,
+    top_diam_in: Union[float, ArrayLike] = 0.0,
+    *,
+    fia_spcd: Optional[Union[int, ArrayLike]] = None,
+) -> Union[float, NDArray]:
+    """Predict tree height (ft) at a given top diameter.
+
+    Implements the Chapman-Richards model from Westfall and Laustsen (2006)
+    for 18 species groups in Maine.
+
+    All six parameters accept either a scalar value or an array-like, enabling
+    vectorized prediction over mixed-species, mixed-class stands in a single
+    call. When any parameter is array-like, all parameters are broadcast
+    together and a NumPy array is returned; otherwise a single float is
+    returned.
+
+    Parameters
+    ----------
+    species_group : int or array_like of int, optional
+        Species group number (1–18). Must provide either this or ``fia_spcd``.
+    dbh_in : float or array_like
+        Diameter at breast height (inches).
+    ccr_pct : float or array_like
+        Compacted crown ratio (percent, 0–100).
+    tree_class : str or array_like of str
+        Tree class: "preferred", "acceptable", "rough", "rotten", or "dead".
+    crown_class : str or array_like of str
+        Crown class: "dead", "intermediate", "dominant", "codominant",
+        "open grown", or "overtopped".
+    top_diam_in : float or array_like, optional
+        Top diameter (inches) at which to predict height. Default is 0,
+        which gives total tree height.
+    fia_spcd : int or array_like of int, optional (keyword-only)
+        FIA species code(s) (e.g. 746 for Quaking aspen). Converted to species
+        group numbers before prediction. Must provide either this or
+        ``species_group``.
+
+    Returns
+    -------
+    float or numpy.ndarray
+        Predicted height in feet.
     """
     if species_group is not None and fia_spcd is not None:
         raise ValueError(
@@ -88,137 +142,62 @@ def _resolve_species_group(
             "Must provide either 'species_group' or 'fia_spcd'."
         )
 
-    if species_group is not None:
-        if isinstance(species_group, int):
-            if species_group not in VALID_GROUPS:
-                raise ValueError(
-                    f"Invalid species_group {species_group}. "
-                    f"Must be between 1 and 18."
-                )
-            return species_group
+    if fia_spcd is not None:
+        species_group = _fia_spcd_to_species_group(fia_spcd)
 
-        if isinstance(species_group, str):
-            key = species_group.strip().lower()
-            if key not in GROUP_NAME_TO_NUMBER:
-                valid = ", ".join(sorted(VALID_GROUP_NAMES))
-                raise ValueError(
-                    f"Unknown species group name '{species_group}'. "
-                    f"Valid names: {valid}"
-                )
-            return GROUP_NAME_TO_NUMBER[key]
+    is_array = any(
+        isinstance(v, (list, np.ndarray))
+        for v in (species_group, dbh_in, ccr_pct, tree_class, crown_class, top_diam_in)
+    )
 
-        # list/sequence of strings
-        groups = set()
-        for name in species_group:
-            key = name.strip().lower()
-            if key not in GROUP_NAME_TO_NUMBER:
-                valid = ", ".join(sorted(VALID_GROUP_NAMES))
-                raise ValueError(
-                    f"Unknown species group name '{name}'. "
-                    f"Valid names: {valid}"
-                )
-            groups.add(GROUP_NAME_TO_NUMBER[key])
-        if len(groups) != 1:
+    if not is_array:
+        if species_group not in VALID_GROUPS:
             raise ValueError(
-                f"All species group names must resolve to the same group, "
-                f"but got groups: {sorted(groups)}"
+                f"Invalid species_group {species_group}. Must be between 1 and 18."
             )
-        return groups.pop()
+        b = COEFFICIENTS[species_group]
+        cc1, cc2, cc3 = _encode_crown_class(crown_class)
+        tc = _encode_tree_class(tree_class)
+        asymptote = b[0] * top_diam_in + b[1] * cc1 + b[2] * cc2 + b[3] * cc3
+        base = 1.0 - math.exp(-b[4] * dbh_in)
+        exponent = b[5] * ccr_pct + b[6] * tc + pow(top_diam_in / dbh_in + 0.01, b[7])
+        return asymptote * pow(base, exponent)
 
-    # fia_spcd path
-    if isinstance(fia_spcd, int):
-        if fia_spcd not in SPECIES_TO_GROUP:
-            raise ValueError(
-                f"Unknown FIA species code {fia_spcd}. "
-                f"Valid codes: {sorted(SPECIES_TO_GROUP.keys())}"
-            )
-        return SPECIES_TO_GROUP[fia_spcd]
+    # Array path: convert all inputs
+    sg = np.asarray(species_group)
+    dbh_in = np.asarray(dbh_in, dtype=float)
+    ccr_pct = np.asarray(ccr_pct, dtype=float)
+    top_diam_in = np.asarray(top_diam_in, dtype=float)
 
-    # list/sequence of ints
-    groups = set()
-    for code in fia_spcd:
-        if code not in SPECIES_TO_GROUP:
-            raise ValueError(
-                f"Unknown FIA species code {code}. "
-                f"Valid codes: {sorted(SPECIES_TO_GROUP.keys())}"
-            )
-        groups.add(SPECIES_TO_GROUP[code])
-    if len(groups) != 1:
+    # Validate all species group values
+    invalid = [int(g) for g in sg.flat if int(g) not in VALID_GROUPS]
+    if invalid:
         raise ValueError(
-            f"All FIA species codes must belong to the same species group, "
-            f"but got groups: {sorted(groups)}"
+            f"Invalid species_group(s) {invalid}. Must be between 1 and 18."
         )
-    return groups.pop()
 
-
-def predict_height_westfall(
-    species_group: Optional[Union[int, str, Sequence[str]]] = None,
-    dbh_in: Union[float, ArrayLike] = None,
-    ccr_pct: Union[float, ArrayLike] = None,
-    tree_class: str = None,
-    crown_class: str = None,
-    top_diam_in: Union[float, ArrayLike] = 0.0,
-    *,
-    fia_spcd: Optional[Union[int, Sequence[int]]] = None,
-) -> Union[float, NDArray]:
-    """Predict tree height (ft) at a given top diameter.
-
-    Implements the Chapman-Richards model from Westfall and Laustsen (2006)
-    for 18 species groups in Maine.
-
-    Parameters
-    ----------
-    species_group : int, str, or list of str, optional
-        Species group number (1–18), species group name (e.g. "Poplars"),
-        or a list of species group names that all belong to the same group.
-        Must provide either this or ``fia_spcd``.
-    dbh_in : float or array_like
-        Diameter at breast height (inches).
-    ccr_pct : float or array_like
-        Compacted crown ratio (percent, 0–100).
-    tree_class : str
-        Tree class: "preferred", "acceptable", "rough", "rotten", or "dead".
-    crown_class : str
-        Crown class: "dead", "intermediate", "dominant", "codominant",
-        "open grown", or "overtopped".
-    top_diam_in : float or array_like, optional
-        Top diameter (inches) at which to predict height. Default is 0,
-        which gives total tree height.
-    fia_spcd : int or list of int, optional (keyword-only)
-        FIA species code (e.g. 746 for Quaking aspen), or a list of codes
-        that all belong to the same species group. Must provide either this
-        or ``species_group``.
-
-    Returns
-    -------
-    float or numpy.ndarray
-        Predicted height in feet.
-    """
-    resolved_group = _resolve_species_group(species_group, fia_spcd)
-
-    b = COEFFICIENTS[resolved_group]
-    cc1, cc2, cc3 = _encode_crown_class(crown_class)
-    tc = _encode_tree_class(tree_class)
-
-    is_array = any(isinstance(v, (list, np.ndarray)) for v in (dbh_in, ccr_pct, top_diam_in))
-
-    if is_array:
-        dbh_in = np.asarray(dbh_in, dtype=float)
-        ccr_pct = np.asarray(ccr_pct, dtype=float)
-        top_diam_in = np.asarray(top_diam_in, dtype=float)
-        exp = np.exp
-        power = np.power
+    # Build coefficient arrays indexed by species group.
+    # Result shape: (8,) when sg is 0-d, (*sg.shape, 8) when sg is n-d.
+    b_rows = [COEFFICIENTS[int(g)] for g in sg.flat]
+    if sg.ndim == 0:
+        b_mat = np.array(b_rows[0], dtype=float)        # shape (8,)
     else:
-        exp = math.exp
-        power = pow
+        b_mat = np.array(b_rows, dtype=float).reshape(*sg.shape, 8)
+    b0, b1, b2, b3, b4, b5, b6, b7 = (b_mat[..., i] for i in range(8))
 
-    # Asymptote term
-    asymptote = b[0] * top_diam_in + b[1] * cc1 + b[2] * cc2 + b[3] * cc3
+    # Encode tree_class (scalar string or array of strings)
+    tc = np.asarray(
+        np.frompyfunc(_encode_tree_class, 1, 1)(np.asarray(tree_class)), dtype=float
+    )
 
-    # Chapman-Richards base
-    base = 1.0 - exp(-b[4] * dbh_in)
+    # Encode crown_class (scalar string or array of strings)
+    cc1, cc2, cc3 = np.frompyfunc(_encode_crown_class, 1, 3)(np.asarray(crown_class))
+    cc1 = np.asarray(cc1, dtype=float)
+    cc2 = np.asarray(cc2, dtype=float)
+    cc3 = np.asarray(cc3, dtype=float)
 
-    # Shape exponent
-    exponent = b[5] * ccr_pct + b[6] * tc + power(top_diam_in / dbh_in + 0.01, b[7])
-
-    return asymptote * power(base, exponent)
+    # Chapman-Richards computation
+    asymptote = b0 * top_diam_in + b1 * cc1 + b2 * cc2 + b3 * cc3
+    base = 1.0 - np.exp(-b4 * dbh_in)
+    exponent = b5 * ccr_pct + b6 * tc + np.power(top_diam_in / dbh_in + 0.01, b7)
+    return asymptote * np.power(base, exponent)

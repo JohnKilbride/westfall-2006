@@ -230,20 +230,30 @@ class TestDeadTree:
 
 class TestVectorized:
     """
-    Test vectorization by passing arrays to predict_height_westfall.
+    Test full vectorization: all six parameters may be arrays.
 
-    Uses the same trees from the scalar test classes, all
-    evaluated with species group 12 and codominant/acceptable
-    attributes to allow vectorized calling:
-    - DBH = [15.5, 20.0, 12.0, 18.0]
-    - CCR = [40, 55, 30, 25]
+    Uses the same four trees from the scalar test classes, each with
+    a different species group, tree class, and crown class:
+
+    Tree 1 (TestReadmeExample):
+        species_group=12, DBH=15.5, CCR=40,
+        tree_class="acceptable", crown_class="codominant"
+    Tree 2 (TestSoftwoodDominant):
+        species_group=1,  DBH=20.0, CCR=55,
+        tree_class="preferred",   crown_class="dominant"
+    Tree 3 (TestOvertoppedRough):
+        species_group=8,  DBH=12.0, CCR=30,
+        tree_class="rough",       crown_class="overtopped"
+    Tree 4 (TestDeadTree):
+        species_group=3,  DBH=18.0, CCR=25,
+        tree_class="dead",        crown_class="dead"
     """
 
-    species_group = 12
+    species_group = np.array([12, 1, 8, 3])
     dbh = np.array([15.5, 20.0, 12.0, 18.0])
     ccr = np.array([40.0, 55.0, 30.0, 25.0])
-    tree_class = "acceptable"
-    crown_class = "codominant"
+    tree_class = np.array(["acceptable", "preferred", "rough", "dead"])
+    crown_class = np.array(["codominant", "dominant", "overtopped", "dead"])
 
     def test_total_height(self):
         """Vectorized total height matches individual scalar calls."""
@@ -255,13 +265,13 @@ class TestVectorized:
         assert isinstance(result, np.ndarray)
         assert len(result) == 4
 
-        assert result[0] == 75.08210159707517
-        assert result[1] == 80.29636086963121
-        assert result[2] == 69.12084600442284
-        assert result[3] == 79.944568707806
+        assert result[0] == 75.08210159707517   # TestReadmeExample
+        assert result[1] == 76.55781961600512   # TestSoftwoodDominant
+        assert result[2] == 43.85727492152837   # TestOvertoppedRough
+        assert result[3] == 68.84553875174208   # TestDeadTree
 
     def test_bole_height(self):
-        """Vectorized bole height (4-in. top diameter)."""
+        """Vectorized bole height (4-in. top diameter) matches scalar calls."""
         result = predict_height_westfall(
             self.species_group, self.dbh, self.ccr,
             self.tree_class, self.crown_class, 4.0,
@@ -270,10 +280,10 @@ class TestVectorized:
         assert isinstance(result, np.ndarray)
         assert len(result) == 4
 
-        assert result[0] == 56.9740957505897
-        assert result[1] == 62.91430096299435
-        assert result[2] == 50.05713847064891
-        assert result[3] == 61.9136944145404
+        assert result[0] == 56.9740957505897    # TestReadmeExample
+        assert result[1] == 62.28412088723717   # TestSoftwoodDominant
+        assert result[2] == 32.436949584096766  # TestOvertoppedRough
+        assert result[3] == 54.501248362832285  # TestDeadTree
 
     def test_vectorized_top_diameter(self):
         """Vectorized with varying top diameters."""
@@ -286,104 +296,36 @@ class TestVectorized:
         assert isinstance(result, np.ndarray)
         assert len(result) == 4
 
-        # First tree: total height
-        assert result[0] == 75.08210159707517
-        # Second tree: bole height
-        assert result[1] == 62.91430096299435
-        # Fourth tree: total height
-        assert result[3] == 79.944568707806
+        assert result[0] == 75.08210159707517   # tree 1 total height
+        assert result[1] == 62.28412088723717   # tree 2 bole height
+        assert result[2] == 17.149335239781124  # tree 3 sawlog height (group 8 9-in)
+        assert result[3] == 68.84553875174208   # tree 4 total height
 
     def test_list_input(self):
-        """List inputs produce the same results as numpy arrays."""
+        """List inputs for all parameters produce the same results as arrays."""
         result = predict_height_westfall(
-            self.species_group,
+            [12, 1, 8, 3],
             [15.5, 20.0, 12.0, 18.0],
             [40.0, 55.0, 30.0, 25.0],
-            self.tree_class,
-            self.crown_class,
+            ["acceptable", "preferred", "rough", "dead"],
+            ["codominant", "dominant", "overtopped", "dead"],
             [0.0, 0.0, 0.0, 0.0],
         )
 
         assert isinstance(result, np.ndarray)
         assert len(result) == 4
+
         assert result[0] == 75.08210159707517
-        assert result[1] == 80.29636086963121
-
-
-class TestSpeciesGroupByName:
-    """Test passing species group as a string name."""
-
-    def test_string_name_poplars(self):
-        """Species group name 'Poplars' should resolve to group 12."""
-        result = predict_height_westfall(
-            "Poplars", 15.5, 40, "acceptable", "codominant", 0.0,
-        )
-        expected = predict_height_westfall(
-            12, 15.5, 40, "acceptable", "codominant", 0.0,
-        )
-        assert result == expected
-
-    def test_string_name_case_insensitive(self):
-        """Species group names should be case-insensitive."""
-        result = predict_height_westfall(
-            "poplars", 15.5, 40, "acceptable", "codominant", 0.0,
-        )
-        expected = predict_height_westfall(
-            12, 15.5, 40, "acceptable", "codominant", 0.0,
-        )
-        assert result == expected
-
-    def test_string_name_with_whitespace(self):
-        """Species group names should be whitespace-tolerant."""
-        result = predict_height_westfall(
-            "  Poplars  ", 15.5, 40, "acceptable", "codominant", 0.0,
-        )
-        expected = predict_height_westfall(
-            12, 15.5, 40, "acceptable", "codominant", 0.0,
-        )
-        assert result == expected
-
-    def test_string_name_eastern_white_pine(self):
-        """Multi-word species group name should work."""
-        result = predict_height_westfall(
-            "Eastern white pine", 18.0, 25, "dead", "dead", 0.0,
-        )
-        expected = predict_height_westfall(
-            3, 18.0, 25, "dead", "dead", 0.0,
-        )
-        assert result == expected
-
-    def test_invalid_string_name(self):
-        """Invalid species group name should raise ValueError."""
-        with pytest.raises(ValueError, match="Unknown species group name"):
-            predict_height_westfall(
-                "InvalidTree", 15.5, 40, "acceptable", "codominant",
-            )
-
-    def test_string_list_same_group(self):
-        """List of species group names resolving to the same group."""
-        # "Poplars" appears only once, so use a list with duplicates
-        result = predict_height_westfall(
-            ["Poplars", "Poplars"], 15.5, 40, "acceptable", "codominant", 0.0,
-        )
-        expected = predict_height_westfall(
-            12, 15.5, 40, "acceptable", "codominant", 0.0,
-        )
-        assert result == expected
-
-    def test_string_list_different_groups(self):
-        """List of names resolving to different groups should raise."""
-        with pytest.raises(ValueError, match="same group"):
-            predict_height_westfall(
-                ["Poplars", "Ash"], 15.5, 40, "acceptable", "codominant",
-            )
+        assert result[1] == 76.55781961600512
+        assert result[2] == 43.85727492152837
+        assert result[3] == 68.84553875174208
 
 
 class TestFiaSpcd:
-    """Test passing FIA species codes."""
+    """Test passing FIA species codes in place of species_group."""
 
     def test_single_fia_code(self):
-        """FIA code 746 (Quaking aspen) should resolve to group 12."""
+        """FIA code 746 (Quaking aspen, group 12) gives same result as group 12."""
         result = predict_height_westfall(
             dbh_in=15.5, ccr_pct=40, tree_class="acceptable",
             crown_class="codominant", top_diam_in=0.0, fia_spcd=746,
@@ -394,7 +336,7 @@ class TestFiaSpcd:
         assert result == expected
 
     def test_single_fia_code_beech(self):
-        """FIA code 531 (American beech) should resolve to group 18."""
+        """FIA code 531 (American beech, group 18) gives same result as group 18."""
         result = predict_height_westfall(
             dbh_in=15.5, ccr_pct=40, tree_class="acceptable",
             crown_class="codominant", top_diam_in=0.0, fia_spcd=531,
@@ -404,39 +346,69 @@ class TestFiaSpcd:
         )
         assert result == expected
 
-    def test_fia_code_list_same_group(self):
-        """List of FIA codes in the same group should work."""
-        # 741 (Balsam poplar), 743 (Bigtooth aspen), 746 (Quaking aspen)
-        # all belong to group 12
+    def test_fia_code_array_same_group(self):
+        """Array of FIA codes from the same group matches a scalar group call."""
+        # 741 (Balsam poplar), 743 (Bigtooth aspen), 746 (Quaking aspen) → group 12
+        dbh = np.array([15.5, 20.0, 12.0])
+        ccr = np.array([40.0, 55.0, 30.0])
+        result = predict_height_westfall(
+            dbh_in=dbh, ccr_pct=ccr, tree_class="acceptable",
+            crown_class="codominant", top_diam_in=0.0,
+            fia_spcd=np.array([741, 743, 746]),
+        )
+        expected = predict_height_westfall(
+            np.array([12, 12, 12]), dbh, ccr,
+            "acceptable", "codominant", 0.0,
+        )
+        np.testing.assert_array_equal(result, expected)
+
+    def test_fia_code_array_mixed_groups(self):
+        """Array of FIA codes from different groups matches per-group calls."""
+        # 746 → group 12, 531 → group 18, 129 → group 3
+        dbh = np.array([15.5, 15.5, 18.0])
+        ccr = np.array([40.0, 40.0, 25.0])
+        result = predict_height_westfall(
+            dbh_in=dbh, ccr_pct=ccr, tree_class="acceptable",
+            crown_class="codominant", top_diam_in=0.0,
+            fia_spcd=np.array([746, 531, 129]),
+        )
+        expected = predict_height_westfall(
+            np.array([12, 18, 3]), dbh, ccr,
+            "acceptable", "codominant", 0.0,
+        )
+        np.testing.assert_array_equal(result, expected)
+
+    def test_fia_code_list_input(self):
+        """List of FIA codes works the same as a numpy array."""
         result = predict_height_westfall(
             dbh_in=15.5, ccr_pct=40, tree_class="acceptable",
             crown_class="codominant", top_diam_in=0.0,
-            fia_spcd=[741, 743, 746],
+            fia_spcd=[746],
         )
         expected = predict_height_westfall(
-            12, 15.5, 40, "acceptable", "codominant", 0.0,
+            [12], 15.5, 40, "acceptable", "codominant", 0.0,
         )
-        assert result == expected
-
-    def test_fia_code_list_different_groups(self):
-        """List of FIA codes from different groups should raise."""
-        # 746 = group 12, 531 = group 18
-        with pytest.raises(ValueError, match="same species group"):
-            predict_height_westfall(
-                dbh_in=15.5, ccr_pct=40, tree_class="acceptable",
-                crown_class="codominant", fia_spcd=[746, 531],
-            )
+        np.testing.assert_array_equal(result, expected)
 
     def test_invalid_fia_code(self):
-        """Invalid FIA code should raise ValueError."""
+        """Unknown FIA code raises ValueError."""
         with pytest.raises(ValueError, match="Unknown FIA species code"):
             predict_height_westfall(
                 dbh_in=15.5, ccr_pct=40, tree_class="acceptable",
                 crown_class="codominant", fia_spcd=9999,
             )
 
+    def test_invalid_fia_code_in_array(self):
+        """Unknown FIA code inside an array raises ValueError."""
+        with pytest.raises(ValueError, match="Unknown FIA species code"):
+            predict_height_westfall(
+                dbh_in=np.array([15.5, 15.5]), ccr_pct=np.array([40.0, 40.0]),
+                tree_class="acceptable", crown_class="codominant",
+                fia_spcd=np.array([746, 9999]),
+            )
+
     def test_both_species_group_and_fia_raises(self):
-        """Providing both species_group and fia_spcd should raise."""
+        """Providing both species_group and fia_spcd raises ValueError."""
         with pytest.raises(ValueError, match="not both"):
             predict_height_westfall(
                 species_group=12, dbh_in=15.5, ccr_pct=40,
@@ -444,23 +416,30 @@ class TestFiaSpcd:
                 fia_spcd=746,
             )
 
-    def test_neither_species_group_nor_fia_raises(self):
-        """Providing neither species_group nor fia_spcd should raise."""
+    def test_neither_raises(self):
+        """Providing neither species_group nor fia_spcd raises ValueError."""
         with pytest.raises(ValueError, match="Must provide"):
             predict_height_westfall(
                 dbh_in=15.5, ccr_pct=40,
                 tree_class="acceptable", crown_class="codominant",
             )
 
-    def test_fia_code_vectorized(self):
-        """FIA code should work with vectorized inputs."""
-        dbh = np.array([15.5, 20.0, 12.0, 18.0])
-        ccr = np.array([40.0, 55.0, 30.0, 25.0])
+    def test_fia_code_fully_vectorized(self):
+        """FIA code array with per-tree tree_class and crown_class."""
         result = predict_height_westfall(
-            dbh_in=dbh, ccr_pct=ccr, tree_class="acceptable",
-            crown_class="codominant", top_diam_in=0.0, fia_spcd=746,
+            dbh_in=np.array([15.5, 20.0, 12.0, 18.0]),
+            ccr_pct=np.array([40.0, 55.0, 30.0, 25.0]),
+            tree_class=np.array(["acceptable", "preferred", "rough", "dead"]),
+            crown_class=np.array(["codominant", "dominant", "overtopped", "dead"]),
+            top_diam_in=0.0,
+            fia_spcd=np.array([746, 125, 261, 129]),  # groups 12, 1, 8, 3
         )
         expected = predict_height_westfall(
-            12, dbh, ccr, "acceptable", "codominant", 0.0,
+            np.array([12, 1, 8, 3]),
+            np.array([15.5, 20.0, 12.0, 18.0]),
+            np.array([40.0, 55.0, 30.0, 25.0]),
+            np.array(["acceptable", "preferred", "rough", "dead"]),
+            np.array(["codominant", "dominant", "overtopped", "dead"]),
+            0.0,
         )
         np.testing.assert_array_equal(result, expected)
