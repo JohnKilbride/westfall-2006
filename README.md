@@ -16,6 +16,32 @@ It supports 18 species groups in Maine and accepts diameter at breast height (DB
 
 Setting `top_diam_in=0` (the default) returns total tree height; providing a non-zero top diameter returns the height to that stem diameter, enabling estimation of merchantable bole height. Scalar inputs return a single float; array inputs return a NumPy array, making the function suitable for both individual-tree and stand-level predictions.
 
+### `predict_height_westfall`
+
+```python
+predict_height_westfall(
+    species_group: int,
+    dbh_in: float | array_like,
+    ccr_pct: float | array_like,
+    tree_class: str,
+    crown_class: str,
+    top_diam_in: float | array_like = 0.0,
+) -> float | numpy.ndarray
+```
+
+Predicts tree height (ft) at a specified top diameter using the Chapman-Richards allometric model.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `species_group` | `int` | Species group number (1–18). |
+| `dbh_in` | `float` or array | Diameter at breast height (inches). |
+| `ccr_pct` | `float` or array | Compacted crown ratio (percent, 0–100). |
+| `tree_class` | `str` | One of `"preferred"`, `"acceptable"`, `"rough"`, `"rotten"`, or `"dead"`. |
+| `crown_class` | `str` | One of `"dominant"`, `"codominant"`, `"intermediate"`, `"overtopped"`, `"open grown"`, or `"dead"`. |
+| `top_diam_in` | `float` or array | Top stem diameter (inches) at which to predict height. Defaults to `0.0` for total tree height. |
+
+**Returns:** Predicted height in feet as a `float` (scalar inputs) or `numpy.ndarray` (array inputs).
+
 ## Model description
 
 Here, we show Equation (2) from Westfall and Laustsen (2006) modified to remove the error term and the random-effects parameters. The model is based on the Chapman-Richards growth equation (Richards 1959).
