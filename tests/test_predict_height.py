@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from westfall_2006 import predict_height_westfall
 
@@ -307,3 +308,159 @@ class TestVectorized:
         assert len(result) == 4
         assert result[0] == 75.08210159707517
         assert result[1] == 80.29636086963121
+
+
+class TestSpeciesGroupByName:
+    """Test passing species group as a string name."""
+
+    def test_string_name_poplars(self):
+        """Species group name 'Poplars' should resolve to group 12."""
+        result = predict_height_westfall(
+            "Poplars", 15.5, 40, "acceptable", "codominant", 0.0,
+        )
+        expected = predict_height_westfall(
+            12, 15.5, 40, "acceptable", "codominant", 0.0,
+        )
+        assert result == expected
+
+    def test_string_name_case_insensitive(self):
+        """Species group names should be case-insensitive."""
+        result = predict_height_westfall(
+            "poplars", 15.5, 40, "acceptable", "codominant", 0.0,
+        )
+        expected = predict_height_westfall(
+            12, 15.5, 40, "acceptable", "codominant", 0.0,
+        )
+        assert result == expected
+
+    def test_string_name_with_whitespace(self):
+        """Species group names should be whitespace-tolerant."""
+        result = predict_height_westfall(
+            "  Poplars  ", 15.5, 40, "acceptable", "codominant", 0.0,
+        )
+        expected = predict_height_westfall(
+            12, 15.5, 40, "acceptable", "codominant", 0.0,
+        )
+        assert result == expected
+
+    def test_string_name_eastern_white_pine(self):
+        """Multi-word species group name should work."""
+        result = predict_height_westfall(
+            "Eastern white pine", 18.0, 25, "dead", "dead", 0.0,
+        )
+        expected = predict_height_westfall(
+            3, 18.0, 25, "dead", "dead", 0.0,
+        )
+        assert result == expected
+
+    def test_invalid_string_name(self):
+        """Invalid species group name should raise ValueError."""
+        with pytest.raises(ValueError, match="Unknown species group name"):
+            predict_height_westfall(
+                "InvalidTree", 15.5, 40, "acceptable", "codominant",
+            )
+
+    def test_string_list_same_group(self):
+        """List of species group names resolving to the same group."""
+        # "Poplars" appears only once, so use a list with duplicates
+        result = predict_height_westfall(
+            ["Poplars", "Poplars"], 15.5, 40, "acceptable", "codominant", 0.0,
+        )
+        expected = predict_height_westfall(
+            12, 15.5, 40, "acceptable", "codominant", 0.0,
+        )
+        assert result == expected
+
+    def test_string_list_different_groups(self):
+        """List of names resolving to different groups should raise."""
+        with pytest.raises(ValueError, match="same group"):
+            predict_height_westfall(
+                ["Poplars", "Ash"], 15.5, 40, "acceptable", "codominant",
+            )
+
+
+class TestFiaSpcd:
+    """Test passing FIA species codes."""
+
+    def test_single_fia_code(self):
+        """FIA code 746 (Quaking aspen) should resolve to group 12."""
+        result = predict_height_westfall(
+            dbh_in=15.5, ccr_pct=40, tree_class="acceptable",
+            crown_class="codominant", top_diam_in=0.0, fia_spcd=746,
+        )
+        expected = predict_height_westfall(
+            12, 15.5, 40, "acceptable", "codominant", 0.0,
+        )
+        assert result == expected
+
+    def test_single_fia_code_beech(self):
+        """FIA code 531 (American beech) should resolve to group 18."""
+        result = predict_height_westfall(
+            dbh_in=15.5, ccr_pct=40, tree_class="acceptable",
+            crown_class="codominant", top_diam_in=0.0, fia_spcd=531,
+        )
+        expected = predict_height_westfall(
+            18, 15.5, 40, "acceptable", "codominant", 0.0,
+        )
+        assert result == expected
+
+    def test_fia_code_list_same_group(self):
+        """List of FIA codes in the same group should work."""
+        # 741 (Balsam poplar), 743 (Bigtooth aspen), 746 (Quaking aspen)
+        # all belong to group 12
+        result = predict_height_westfall(
+            dbh_in=15.5, ccr_pct=40, tree_class="acceptable",
+            crown_class="codominant", top_diam_in=0.0,
+            fia_spcd=[741, 743, 746],
+        )
+        expected = predict_height_westfall(
+            12, 15.5, 40, "acceptable", "codominant", 0.0,
+        )
+        assert result == expected
+
+    def test_fia_code_list_different_groups(self):
+        """List of FIA codes from different groups should raise."""
+        # 746 = group 12, 531 = group 18
+        with pytest.raises(ValueError, match="same species group"):
+            predict_height_westfall(
+                dbh_in=15.5, ccr_pct=40, tree_class="acceptable",
+                crown_class="codominant", fia_spcd=[746, 531],
+            )
+
+    def test_invalid_fia_code(self):
+        """Invalid FIA code should raise ValueError."""
+        with pytest.raises(ValueError, match="Unknown FIA species code"):
+            predict_height_westfall(
+                dbh_in=15.5, ccr_pct=40, tree_class="acceptable",
+                crown_class="codominant", fia_spcd=9999,
+            )
+
+    def test_both_species_group_and_fia_raises(self):
+        """Providing both species_group and fia_spcd should raise."""
+        with pytest.raises(ValueError, match="not both"):
+            predict_height_westfall(
+                species_group=12, dbh_in=15.5, ccr_pct=40,
+                tree_class="acceptable", crown_class="codominant",
+                fia_spcd=746,
+            )
+
+    def test_neither_species_group_nor_fia_raises(self):
+        """Providing neither species_group nor fia_spcd should raise."""
+        with pytest.raises(ValueError, match="Must provide"):
+            predict_height_westfall(
+                dbh_in=15.5, ccr_pct=40,
+                tree_class="acceptable", crown_class="codominant",
+            )
+
+    def test_fia_code_vectorized(self):
+        """FIA code should work with vectorized inputs."""
+        dbh = np.array([15.5, 20.0, 12.0, 18.0])
+        ccr = np.array([40.0, 55.0, 30.0, 25.0])
+        result = predict_height_westfall(
+            dbh_in=dbh, ccr_pct=ccr, tree_class="acceptable",
+            crown_class="codominant", top_diam_in=0.0, fia_spcd=746,
+        )
+        expected = predict_height_westfall(
+            12, dbh, ccr, "acceptable", "codominant", 0.0,
+        )
+        np.testing.assert_array_equal(result, expected)

@@ -19,18 +19,22 @@ def _load_coefficients() -> Dict[int, Tuple[float, ...]]:
     return coefficients
 
 
-def _load_species_groupings() -> Dict[int, int]:
-    """Load FIA species code to group number mapping."""
-    mapping: Dict[int, int] = {}
+def _load_species_groupings():
+    """Load FIA species code to group number mapping and group name mapping."""
+    spcd_to_group: Dict[int, int] = {}
+    name_to_group: Dict[str, int] = {}
     with open(_DATA_DIR / "species_groupings.csv", newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
             spcd = int(row["FIA_SPCD"])
             group = int(row["Group no."])
-            mapping[spcd] = group
-    return mapping
+            name = row["Species group"].strip()
+            spcd_to_group[spcd] = group
+            name_to_group[name.lower()] = group
+    return spcd_to_group, name_to_group
 
 
 COEFFICIENTS = _load_coefficients()
-SPECIES_TO_GROUP = _load_species_groupings()
+SPECIES_TO_GROUP, GROUP_NAME_TO_NUMBER = _load_species_groupings()
 VALID_GROUPS = set(COEFFICIENTS.keys())
+VALID_GROUP_NAMES = set(GROUP_NAME_TO_NUMBER.keys())
