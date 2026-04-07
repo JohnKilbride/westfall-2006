@@ -58,13 +58,13 @@ $$
 
 where:
 
-$H_{i}$ = tree height (ft) of the $i^{th}$ tree at top diameter $D$.
+$H_{i}$ = tree height (feet) of the $i^{th}$ tree at top diameter $D$.
 
-$D_{i}$ = top-diameter (in.) within the $i^{th}$ tree.
+$D_{i}$ = top-diameter (inches) within the $i^{th}$ tree.
 
-$DBH_i$ = diameter at breast height (in.) of the $i^{th}$ tree.
+$DBH_i$ = diameter at breast height (inches) of the $i^{th}$ tree.
 
-$CC_{1i}$, $CC_{2i}$, $CC_{3i}$ = The crown class indicators of tree *i*. These are a set of one-hot encoded variables. 
+$CC_{1i}$, $CC_{2i}$, $CC_{3i}$ = The crown class indicators of the $i^{th}$ tree. These are a set of one-hot encoded variables. 
 
 $$
 CC_{ki} = \begin{cases}
@@ -74,7 +74,7 @@ CC_{ki} = \begin{cases}
 \end{cases}
 $$
 
-$TC_i$ = The tree class of tree *i*. TC is an integer coded value between 1 and 3.
+$TC_i$ = The tree class of the $i^{th}$ tree. TC is an integer coded value between 1 and 3.
 
 $$
 TC_i = \begin{cases}
@@ -86,7 +86,7 @@ $$
 
 $CR_i$ = compacted crown ratio (%; integers 0 - 100) of the $i^{th}$ tree. The units are 
 
-$\beta_0 \text{--} \beta_6$ = fixed-effects population parameters
+$\beta_0 \text{--} \beta_6$ = the fixed-effects population parameters.
 
 ## Species Groups
 
