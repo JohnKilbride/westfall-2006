@@ -10,7 +10,7 @@
 
 ## Overview
 
-We implement the empirical model for predicting merchantable and total tree height for 18 species groups in Maine as presented in Westfall and Laustsen (2006).
+This package provides `predict_height`, a function that predicts tree height (ft) at a given top diameter using the Chapman-Richards allometric model from Westfall and Laustsen (2006). It supports 18 species groups in Maine and accepts diameter at breast height (DBH, inches), compacted crown ratio (percent), tree class, crown class, and an optional top diameter (inches). Setting `top_diam_in=0` (the default) returns total tree height; providing a non-zero top diameter returns the height to that stem diameter, enabling estimation of merchantable bole height. Scalar inputs return a single float; array inputs return a NumPy array, making the function suitable for both individual-tree and stand-level predictions.
 
 ## Model description
 
