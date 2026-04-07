@@ -1,12 +1,12 @@
 """Height-to-diameter model from Westfall and Laustsen (2006)."""
 
 import math
-from typing import Union
+from typing import Optional, Sequence, Union
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
-from .tables import COEFFICIENTS, VALID_GROUPS
+from .tables import COEFFICIENTS, SPECIES_TO_GROUP, VALID_GROUPS
 
 CROWN_CLASS_ENCODING = {
     "intermediate": (1, 0, 0),
@@ -48,6 +48,44 @@ def _encode_tree_class(tree_class: str) -> int:
     return TREE_CLASS_ENCODING[key]
 
 
+def _fia_spcd_to_species_group(
+    fia_spcd: Union[int, ArrayLike],
+) -> Union[int, NDArray]:
+    """Convert FIA species code(s) to species group number(s).
+
+    Parameters
+    ----------
+    fia_spcd : int or array_like of int
+        FIA species code(s) to convert.
+
+    Returns
+    -------
+    int or numpy.ndarray
+        Corresponding species group number(s).
+
+    Raises
+    ------
+    ValueError
+        If any code is not recognised.
+    """
+    if isinstance(fia_spcd, int):
+        if fia_spcd not in SPECIES_TO_GROUP:
+            raise ValueError(
+                f"Unknown FIA species code {fia_spcd}. "
+                f"Valid codes: {sorted(SPECIES_TO_GROUP.keys())}"
+            )
+        return SPECIES_TO_GROUP[fia_spcd]
+
+    arr = np.asarray(fia_spcd)
+    unknown = [int(c) for c in arr.flat if int(c) not in SPECIES_TO_GROUP]
+    if unknown:
+        raise ValueError(
+            f"Unknown FIA species code(s) {unknown}. "
+            f"Valid codes: {sorted(SPECIES_TO_GROUP.keys())}"
+        )
+    return np.vectorize(SPECIES_TO_GROUP.__getitem__)(arr)
+
+
 def predict_height_westfall(
     species_group: Union[int, ArrayLike],
     dbh_in: Union[float, ArrayLike],
@@ -55,6 +93,8 @@ def predict_height_westfall(
     tree_class: Union[str, ArrayLike],
     crown_class: Union[str, ArrayLike],
     top_diam_in: Union[float, ArrayLike] = 0.0,
+    *,
+    fia_spcd: Optional[Union[int, ArrayLike]] = None,
 ) -> Union[float, NDArray]:
     """Predict tree height (ft) at a given top diameter.
 
@@ -83,6 +123,10 @@ def predict_height_westfall(
     top_diam_in : float or array_like, optional
         Top diameter (inches) at which to predict height. Default is 0,
         which gives total tree height.
+    fia_spcd : int or array_like of int, optional (keyword-only)
+        FIA species code(s) (e.g. 746 for Quaking aspen). Converted to species
+        group numbers before prediction. Must provide either this or
+        ``species_group``.
 
     Returns
     -------
@@ -127,6 +171,7 @@ def predict_height_westfall(
         b_mat = np.array(b_rows[0], dtype=float)        # shape (8,)
     else:
         b_mat = np.array(b_rows, dtype=float).reshape(*sg.shape, 8)
+        
     b0, b1, b2, b3, b4, b5, b6, b7 = (b_mat[..., i] for i in range(8))
 
     # Encode tree_class (scalar string or array of strings)
