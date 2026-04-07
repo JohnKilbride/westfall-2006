@@ -69,12 +69,12 @@ H_{i0} &= 75.0 \text{ ft}
 from westfall_2006 import predict_height
 
 total_height = predict_height(
-    species_group=12,
-    dbh_in=15.5,
-    ccr_pct=40,
-    tree_class="acceptable",
-    crown_class="codominant",
-    top_diam_in=0.0,
+    species_group = 12,
+    dbh_in = 15.5,
+    ccr_pct = 40,
+    tree_class = "acceptable",
+    crown_class = "codominant",
+    top_diam_in = 0.0,
 )
 # total_height => 75.0 ft
 ```
@@ -93,12 +93,12 @@ H_{i4} &= 56.9 \text{ ft}
 
 ```python
 bole_height = predict_height(
-    species_group=12,
-    dbh_in=15.5,
-    ccr_pct=40,
-    tree_class="acceptable",
-    crown_class="codominant",
-    top_diam_in=4.0,
+    species_group = 12,
+    dbh_in = 15.5,
+    ccr_pct = 40,
+    tree_class = "acceptable",
+    crown_class = "codominant",
+    top_diam_in = 4.0,
 )
 # bole_height => 56.9 ft
 ```
