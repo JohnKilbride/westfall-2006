@@ -9,8 +9,7 @@ Here, we show Equation (2) from Westfall and Laustsen (2006) modified to remove 
 $$
 \begin{aligned}
 H_{i} = & \left(\beta_0 D_{i} + \beta_1 CC_{1i} + \beta_2 CC_{2i} + \beta_3 CC_{3i}\right) \\
-         & \cdot \left(1 - \exp\left(-\beta_4 DBH_i\right)\right) \\
-         & \cdot \exp\left(\beta_5 CR_i + \beta_6 TC_i + \left(\frac{D_{i}}{DBH_i} + 0.01\right)^{\beta_7}\right)
+         & \cdot \left(1 - \exp\left(-\beta_4 DBH_i\right)\right)^{\beta_5 CR_i + \beta_6 TC_i + \left(\frac{D_{i}}{DBH_i} + 0.01\right)^{\beta_7}}
 \end{aligned}
 $$
 
