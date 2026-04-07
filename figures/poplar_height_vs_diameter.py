@@ -61,9 +61,16 @@ for ref_dbh in (10, 15, 20, 25):
 ax.set_xlabel("Diameter at Breast Height (inches)", fontsize=12)
 ax.set_ylabel("Predicted Height (feet)", fontsize=12)
 ax.set_title(
-    "Poplars (Group 12) — Predicted Height vs. DBH\n"
-    f"CCR = {CCR_PCT:.0f}%,  tree class = {TREE_CLASS},  crown class = {CROWN_CLASS}",
-    fontsize=12,
+    "Height (ft) vs Diameter (in) for a Poplar tree",
+    fontsize=13,
+    fontweight="bold",
+)
+ax.text(
+    0.5, 1.01,
+    f"Species Group 12  |  CCR = {CCR_PCT:.0f}%  |  tree class = {TREE_CLASS}  |  crown class = {CROWN_CLASS}",
+    transform=ax.transAxes,
+    ha="center", va="bottom",
+    fontsize=9, color="#444444",
 )
 
 ax.set_xlim(DBH_MIN, DBH_MAX)
