@@ -113,13 +113,15 @@ $CR_i$ = compacted crown ratio (%; integers 0 - 100) of the $i^{th}$ tree. The u
 
 $\beta_0 \text{--} \beta_6$ = fixed-effects population parameters
 
-## Example Calculation
+## Demonstration calculations
 
-Westfall and Laustsen (2006) provided an example of how to apply the equations using a poplar tree (**species group** = 12) with the following attributes:
+Westfall and Laustsen (2006) provided the following example of how to apply the equations using a poplar tree (**species group** = 12) with the following attributes:
 - **dbh** = 15.5 in.
 - **Compacted crown ratio** = 40 percent
 - **Tree class** = acceptable (TC = 2)
 - **Crown class** = codominant (CC₁ = 0; CC₂ = 1; CC₃ = 0)
+
+We demonstate that this implementation reproduces the same results. 
 
 ### 1) Prediction of total height
 
