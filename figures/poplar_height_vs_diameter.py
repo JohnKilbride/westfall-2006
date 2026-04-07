@@ -22,7 +22,7 @@ import matplotlib.ticker as ticker
 # Allow running the script directly from the figures/ folder
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from westfall_2006 import predict_height
+from westfall_2006 import predict_height_westfall
 
 # ---------------------------------------------------------------------------
 # Parameters
@@ -41,9 +41,9 @@ N_POINTS = 500
 # ---------------------------------------------------------------------------
 dbh = np.linspace(DBH_MIN, DBH_MAX, N_POINTS)
 
-total_ht = predict_height(SPECIES_GROUP, dbh, CCR_PCT, TREE_CLASS, CROWN_CLASS, top_diam_in=0.0)
-bole_4in = predict_height(SPECIES_GROUP, dbh, CCR_PCT, TREE_CLASS, CROWN_CLASS, top_diam_in=4.0)
-sawlog_9in = predict_height(SPECIES_GROUP, dbh, CCR_PCT, TREE_CLASS, CROWN_CLASS, top_diam_in=9.0)
+total_ht = predict_height_westfall(SPECIES_GROUP, dbh, CCR_PCT, TREE_CLASS, CROWN_CLASS, top_diam_in=0.0)
+bole_4in = predict_height_westfall(SPECIES_GROUP, dbh, CCR_PCT, TREE_CLASS, CROWN_CLASS, top_diam_in=4.0)
+sawlog_9in = predict_height_westfall(SPECIES_GROUP, dbh, CCR_PCT, TREE_CLASS, CROWN_CLASS, top_diam_in=9.0)
 
 # ---------------------------------------------------------------------------
 # Plot
