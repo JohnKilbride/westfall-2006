@@ -1,3 +1,13 @@
+<div align="center">
+
+# Westfall & Laustsen (2006): Height-to-Diameter Model for Maine Tree Species
+
+<img src="figures/poplar_height_vs_diameter.png" alt="Poplar height vs. diameter" width="500"/>
+
+<sub>Predicted height vs. diameter at breast height (DBH) for poplar using the Westfall and Laustsen (2006) Chapman-Richards model.</sub>
+
+</div>
+
 ## Overview
 
 We implement the empirical model for predicting merchantable and total tree height for 18 species groups in Maine as presented in Westfall and Laustsen (2006).
