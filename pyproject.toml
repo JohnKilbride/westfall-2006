@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "westfall-2006"
+version = "0.1.0"
+description = "Merchantable and total height model for tree species in Maine (Westfall and Laustsen 2006)"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+
+[tool.setuptools.packages.find]
+include = ["westfall_2006*"]
