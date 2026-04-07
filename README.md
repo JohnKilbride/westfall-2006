@@ -88,16 +88,6 @@ $CR_i$ = compacted crown ratio (%; integers 0 - 100) of the $i^{th}$ tree. The u
 
 $\beta_0 \text{--} \beta_6$ = fixed-effects population parameters
 
-## Demonstration calculations
-
-Westfall and Laustsen (2006) provided the following example of how to apply the equations using a poplar tree (**species group** = 12) with the following attributes:
-- **dbh** = 15.5 in.
-- **Compacted crown ratio** = 40 percent
-- **Tree class** = acceptable (TC = 2)
-- **Crown class** = codominant (CC₁ = 0; CC₂ = 1; CC₃ = 0)
-
-We demonstate that this implementation reproduces the same results. 
-
 ## Species Groups
 
 The `species_group` parameter accepts integers 1–18. The table below lists the species group number, the group name, the species name, and the FIA species codes (SPCD) that correspond to each species.
@@ -122,6 +112,16 @@ The `species_group` parameter accepts integers 1–18. The table below lists the
 | 16 | Other hardwood | Maple, Striped maple, Silver maple, Mountain maple, Norway maple, Ohio buckeye, Serviceberry, Sweet birch, Gray birch, American hornbeam, Butternut, Osage-orange, Apple, Eastern hophornbeam, Pin cherry, Chokecherry, White oak, Swamp white oak, Willow, Black willow, White willow, American mountain-ash, Elm, American elm | 310, 315, 317, 319, 320, 331, 356, 372, 379, 391, 601, 641, 660, 701, 761, 763, 802, 804, 920, 922, 927, 935, 970, 972 |
 | 17 | Red maple | Red maple | 316 |
 | 18 | American beech | American beech | 531 |
+
+## Demonstration calculations
+
+Westfall and Laustsen (2006) provided the following example of how to apply the equations using a poplar tree (**species group** = 12) with the following attributes:
+- **dbh** = 15.5 in.
+- **Compacted crown ratio** = 40 percent
+- **Tree class** = acceptable (TC = 2)
+- **Crown class** = codominant (CC₁ = 0; CC₂ = 1; CC₃ = 0)
+
+We demonstate that this implementation reproduces the same results. 
 
 ### 1) Prediction of total height
 
