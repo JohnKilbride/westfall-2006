@@ -42,6 +42,31 @@ Predicts tree height (ft) at a specified top diameter using the Chapman-Richards
 
 **Returns:** Predicted height in feet as a `float` (scalar inputs) or `numpy.ndarray` (array inputs).
 
+## Species Groups
+
+The `species_group` parameter accepts integers 1–18. The table below lists each group, its name, and the constituent FIA species codes (SPCD).
+
+| Group | Species Group Name | FIA SPCD |
+|------:|--------------------|----------|
+| 1 | Miscellaneous softwood | 6212, 91, 105, 125, 126, 128, 130 |
+| 2 | Tamarack (native) | 71 |
+| 3 | Eastern white pine | 129 |
+| 4 | White spruce | 94 |
+| 5 | Black spruce | 95 |
+| 6 | Red spruce | 97 |
+| 7 | Balsam fir | 12 |
+| 8 | Eastern hemlock | 261 |
+| 9 | Northern white-cedar | 241 |
+| 10 | Sugar maple | 318 |
+| 11 | Ash | 541, 543, 544 |
+| 12 | Poplars | 741, 742, 743, 744, 746 |
+| 13 | Miscellaneous hardwood | 407, 762, 806, 833, 837, 951 |
+| 14 | Yellow birch | 371 |
+| 15 | Paper birch | 375 |
+| 16 | Other hardwood | 310, 315, 317, 319, 320, 331, 356, 372, 379, 391, 601, 641, 660, 701, 761, 763, 802, 804, 920, 922, 927, 935, 970, 972 |
+| 17 | Red maple | 316 |
+| 18 | American beech | 531 |
+
 ## Model description
 
 Here, we show Equation (2) from Westfall and Laustsen (2006) modified to remove the error term and the random-effects parameters. The model is based on the Chapman-Richards growth equation (Richards 1959).
