@@ -229,20 +229,30 @@ class TestDeadTree:
 
 class TestVectorized:
     """
-    Test vectorization by passing arrays to predict_height_westfall.
+    Test full vectorization: all six parameters may be arrays.
 
-    Uses the same trees from the scalar test classes, all
-    evaluated with species group 12 and codominant/acceptable
-    attributes to allow vectorized calling:
-    - DBH = [15.5, 20.0, 12.0, 18.0]
-    - CCR = [40, 55, 30, 25]
+    Uses the same four trees from the scalar test classes, each with
+    a different species group, tree class, and crown class:
+
+    Tree 1 (TestReadmeExample):
+        species_group=12, DBH=15.5, CCR=40,
+        tree_class="acceptable", crown_class="codominant"
+    Tree 2 (TestSoftwoodDominant):
+        species_group=1,  DBH=20.0, CCR=55,
+        tree_class="preferred",   crown_class="dominant"
+    Tree 3 (TestOvertoppedRough):
+        species_group=8,  DBH=12.0, CCR=30,
+        tree_class="rough",       crown_class="overtopped"
+    Tree 4 (TestDeadTree):
+        species_group=3,  DBH=18.0, CCR=25,
+        tree_class="dead",        crown_class="dead"
     """
 
-    species_group = 12
+    species_group = np.array([12, 1, 8, 3])
     dbh = np.array([15.5, 20.0, 12.0, 18.0])
     ccr = np.array([40.0, 55.0, 30.0, 25.0])
-    tree_class = "acceptable"
-    crown_class = "codominant"
+    tree_class = np.array(["acceptable", "preferred", "rough", "dead"])
+    crown_class = np.array(["codominant", "dominant", "overtopped", "dead"])
 
     def test_total_height(self):
         """Vectorized total height matches individual scalar calls."""
@@ -254,13 +264,13 @@ class TestVectorized:
         assert isinstance(result, np.ndarray)
         assert len(result) == 4
 
-        assert result[0] == 75.08210159707517
-        assert result[1] == 80.29636086963121
-        assert result[2] == 69.12084600442284
-        assert result[3] == 79.944568707806
+        assert result[0] == 75.08210159707517   # TestReadmeExample
+        assert result[1] == 76.55781961600512   # TestSoftwoodDominant
+        assert result[2] == 43.85727492152837   # TestOvertoppedRough
+        assert result[3] == 68.84553875174208   # TestDeadTree
 
     def test_bole_height(self):
-        """Vectorized bole height (4-in. top diameter)."""
+        """Vectorized bole height (4-in. top diameter) matches scalar calls."""
         result = predict_height_westfall(
             self.species_group, self.dbh, self.ccr,
             self.tree_class, self.crown_class, 4.0,
@@ -269,10 +279,10 @@ class TestVectorized:
         assert isinstance(result, np.ndarray)
         assert len(result) == 4
 
-        assert result[0] == 56.9740957505897
-        assert result[1] == 62.91430096299435
-        assert result[2] == 50.05713847064891
-        assert result[3] == 61.9136944145404
+        assert result[0] == 56.9740957505897    # TestReadmeExample
+        assert result[1] == 62.28412088723717   # TestSoftwoodDominant
+        assert result[2] == 32.436949584096766  # TestOvertoppedRough
+        assert result[3] == 54.501248362832285  # TestDeadTree
 
     def test_vectorized_top_diameter(self):
         """Vectorized with varying top diameters."""
@@ -285,25 +295,26 @@ class TestVectorized:
         assert isinstance(result, np.ndarray)
         assert len(result) == 4
 
-        # First tree: total height
-        assert result[0] == 75.08210159707517
-        # Second tree: bole height
-        assert result[1] == 62.91430096299435
-        # Fourth tree: total height
-        assert result[3] == 79.944568707806
+        assert result[0] == 75.08210159707517   # tree 1 total height
+        assert result[1] == 62.28412088723717   # tree 2 bole height
+        assert result[2] == 17.149335239781124   # tree 3 sawlog height (group 8 9-in)
+        assert result[3] == 68.84553875174208   # tree 4 total height
 
     def test_list_input(self):
-        """List inputs produce the same results as numpy arrays."""
+        """List inputs for all parameters produce the same results as arrays."""
         result = predict_height_westfall(
-            self.species_group,
+            [12, 1, 8, 3],
             [15.5, 20.0, 12.0, 18.0],
             [40.0, 55.0, 30.0, 25.0],
-            self.tree_class,
-            self.crown_class,
+            ["acceptable", "preferred", "rough", "dead"],
+            ["codominant", "dominant", "overtopped", "dead"],
             [0.0, 0.0, 0.0, 0.0],
         )
 
         assert isinstance(result, np.ndarray)
         assert len(result) == 4
+
         assert result[0] == 75.08210159707517
-        assert result[1] == 80.29636086963121
+        assert result[1] == 76.55781961600512
+        assert result[2] == 43.85727492152837
+        assert result[3] == 68.84553875174208

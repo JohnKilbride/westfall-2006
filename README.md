@@ -14,17 +14,17 @@ This package provides `predict_height_westfall`, a function that predicts tree h
 
 It supports 18 species groups in Maine and accepts diameter at breast height (DBH, inches), compacted crown ratio (percent), tree class, crown class, and an optional top diameter (inches). 
 
-Setting `top_diam_in=0` (the default) returns total tree height; providing a non-zero top diameter returns the height to that stem diameter, enabling estimation of merchantable bole height. Scalar inputs return a single float; array inputs return a NumPy array, making the function suitable for both individual-tree and stand-level predictions.
+Setting `top_diam_in=0` (the default) returns total tree height; providing a non-zero top diameter returns the height to that stem diameter, enabling estimation of merchantable bole height. All six parameters accept either a scalar or an array-like, so mixed-species, mixed-class stands can be predicted in a single call. When any parameter is array-like the inputs are broadcast together and a NumPy array is returned; otherwise a single float is returned.
 
 ### `predict_height_westfall`
 
 ```python
 predict_height_westfall(
-    species_group: int,
+    species_group: int | array_like,
     dbh_in: float | array_like,
     ccr_pct: float | array_like,
-    tree_class: str,
-    crown_class: str,
+    tree_class: str | array_like,
+    crown_class: str | array_like,
     top_diam_in: float | array_like = 0.0,
 ) -> float | numpy.ndarray
 ```
@@ -33,11 +33,11 @@ Predicts tree height (ft) at a specified top diameter using the Chapman-Richards
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `species_group` | `int` | Species group number (1–18). |
+| `species_group` | `int` or array | Species group number (1–18). |
 | `dbh_in` | `float` or array | Diameter at breast height (inches). |
 | `ccr_pct` | `float` or array | Compacted crown ratio (percent, 0–100). |
-| `tree_class` | `str` | One of `"preferred"`, `"acceptable"`, `"rough"`, `"rotten"`, or `"dead"`. |
-| `crown_class` | `str` | One of `"dominant"`, `"codominant"`, `"intermediate"`, `"overtopped"`, `"open grown"`, or `"dead"`. |
+| `tree_class` | `str` or array | One of `"preferred"`, `"acceptable"`, `"rough"`, `"rotten"`, or `"dead"`. |
+| `crown_class` | `str` or array | One of `"dominant"`, `"codominant"`, `"intermediate"`, `"overtopped"`, `"open grown"`, or `"dead"`. |
 | `top_diam_in` | `float` or array | Top stem diameter (inches) at which to predict height. Defaults to `0.0` for total tree height. |
 
 **Returns:** Predicted height in feet as a `float` (scalar inputs) or `numpy.ndarray` (array inputs).
