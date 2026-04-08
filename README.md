@@ -25,6 +25,8 @@ All six parameters accept either a scalar or an array-like, so mixed-species, mi
 ### `predict_height_westfall`
 
 ```python
+from westfall_2006 import predict_height_westfall
+
 predict_height_westfall(
     species_group: int | array_like | None,
     dbh_in: float | array_like,
