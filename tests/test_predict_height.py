@@ -266,10 +266,10 @@ class TestVectorized:
         assert isinstance(result, np.ndarray)
         assert len(result) == 4
 
-        assert result[0] == 75.08210159707517   # TestReadmeExample
-        assert result[1] == 76.55781961600512   # TestSoftwoodDominant
-        assert result[2] == 43.85727492152837   # TestOvertoppedRough
-        assert result[3] == 68.84553875174208   # TestDeadTree
+        assert result[0] == pytest.approx(75.08210159707517, rel=1e-12)   # TestReadmeExample
+        assert result[1] == pytest.approx(76.55781961600512, rel=1e-12)   # TestSoftwoodDominant
+        assert result[2] == pytest.approx(43.85727492152837, rel=1e-12)   # TestOvertoppedRough
+        assert result[3] == pytest.approx(68.84553875174208, rel=1e-12)   # TestDeadTree
 
     def test_bole_height(self):
         """Vectorized bole height (4-in. top diameter) matches scalar calls."""
@@ -281,10 +281,10 @@ class TestVectorized:
         assert isinstance(result, np.ndarray)
         assert len(result) == 4
 
-        assert result[0] == 56.9740957505897    # TestReadmeExample
-        assert result[1] == 62.28412088723717   # TestSoftwoodDominant
-        assert result[2] == 32.436949584096766  # TestOvertoppedRough
-        assert result[3] == 54.501248362832285  # TestDeadTree
+        assert result[0] == pytest.approx(56.9740957505897, rel=1e-12)    # TestReadmeExample
+        assert result[1] == pytest.approx(62.28412088723717, rel=1e-12)   # TestSoftwoodDominant
+        assert result[2] == pytest.approx(32.436949584096766, rel=1e-12)  # TestOvertoppedRough
+        assert result[3] == pytest.approx(54.501248362832285, rel=1e-12)  # TestDeadTree
 
     def test_vectorized_top_diameter(self):
         """Vectorized with varying top diameters."""
@@ -297,10 +297,10 @@ class TestVectorized:
         assert isinstance(result, np.ndarray)
         assert len(result) == 4
 
-        assert result[0] == 75.08210159707517   # tree 1 total height
-        assert result[1] == 62.28412088723717   # tree 2 bole height
-        assert result[2] == 17.149335239781124   # tree 3 sawlog height (group 8 9-in)
-        assert result[3] == 68.84553875174208   # tree 4 total height
+        assert result[0] == pytest.approx(75.08210159707517, rel=1e-12)    # tree 1 total height
+        assert result[1] == pytest.approx(62.28412088723717, rel=1e-12)    # tree 2 bole height
+        assert result[2] == pytest.approx(17.149335239781124, rel=1e-12)   # tree 3 sawlog height (group 8 9-in)
+        assert result[3] == pytest.approx(68.84553875174208, rel=1e-12)    # tree 4 total height
 
     def test_list_input(self):
         """List inputs for all parameters produce the same results as arrays."""
@@ -316,10 +316,10 @@ class TestVectorized:
         assert isinstance(result, np.ndarray)
         assert len(result) == 4
 
-        assert result[0] == 75.08210159707517
-        assert result[1] == 76.55781961600512
-        assert result[2] == 43.85727492152837
-        assert result[3] == 68.84553875174208
+        assert result[0] == pytest.approx(75.08210159707517, rel=1e-12)
+        assert result[1] == pytest.approx(76.55781961600512, rel=1e-12)
+        assert result[2] == pytest.approx(43.85727492152837, rel=1e-12)
+        assert result[3] == pytest.approx(68.84553875174208, rel=1e-12)
 
 
 class TestFiaSpcd:
