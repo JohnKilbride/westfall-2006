@@ -51,7 +51,7 @@ Predicts tree height (ft) at a specified top diameter using the Chapman-Richards
 
 **Returns:** Predicted height in feet as a `float` (scalar inputs) or `numpy.ndarray` (array inputs).
 
-### Installation
+## Installation
 
 Install the latest release from PyPI:
 
