@@ -26,8 +26,12 @@ TREE_CLASS_ENCODING = {
 }
 
 
-def _encode_crown_class(crown_class: str):
-    """Convert a crown class string to one-hot encoded (CC1, CC2, CC3)."""
+def _encode_crown_class(
+    crown_class: str
+):
+    """
+    Convert a crown class string to one-hot encoded (CC1, CC2, CC3).
+    """
     key = crown_class.strip().lower()
     if key not in CROWN_CLASS_ENCODING:
         valid = ", ".join(sorted(CROWN_CLASS_ENCODING.keys()))
@@ -37,8 +41,12 @@ def _encode_crown_class(crown_class: str):
     return CROWN_CLASS_ENCODING[key]
 
 
-def _encode_tree_class(tree_class: str) -> int:
-    """Convert a tree class string to its integer code (1–3)."""
+def _encode_tree_class(
+    tree_class: str
+) -> int:
+    """
+    Convert a tree class string to its integer code (1–3).
+    """
     key = tree_class.strip().lower()
     if key not in TREE_CLASS_ENCODING:
         valid = ", ".join(sorted(TREE_CLASS_ENCODING.keys()))
@@ -51,7 +59,8 @@ def _encode_tree_class(tree_class: str) -> int:
 def _fia_spcd_to_species_group(
     fia_spcd: Union[int, ArrayLike],
 ) -> Union[int, NDArray]:
-    """Convert FIA species code(s) to species group number(s).
+    """
+    Convert FIA species code(s) to species group number(s).
 
     Parameters
     ----------
@@ -92,7 +101,8 @@ def _validate_inputs(
     ccr_pct: Union[float, ArrayLike],
     top_diam_in: Union[float, ArrayLike],
 ) -> None:
-    """Validate numeric inputs to predict_height_westfall.
+    """
+    Validate numeric inputs to predict_height_westfall.
 
     Checks that species_group values are recognised, dbh_in is positive,
     ccr_pct is in [0, 100], and top_diam_in is non-negative.  String
@@ -138,7 +148,8 @@ def predict_height_westfall(
     *,
     fia_spcd: Optional[Union[int, ArrayLike]] = None,
 ) -> Union[float, NDArray]:
-    """Predict tree height (ft) at a given top diameter.
+    """
+    Predict tree height (ft) at a given top diameter.
 
     Implements the Chapman-Richards model from Westfall and Laustsen (2006)
     for 18 species groups in Maine.
@@ -248,4 +259,5 @@ def predict_height_westfall(
     asymptote = b0 * top_diam_in + b1 * cc1 + b2 * cc2 + b3 * cc3
     base = 1.0 - np.exp(-b4 * dbh_in)
     exponent = b5 * ccr_pct + b6 * tc + np.power(top_diam_in / dbh_in + 0.01, b7)
+    
     return asymptote * np.power(base, exponent)
