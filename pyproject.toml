@@ -9,7 +9,7 @@ description = "Merchantable and total height model for tree species in Maine (We
 readme = "README.md"
 license = "MIT"
 authors = [
-    { name = "John Kilbride" }
+    { name = "John B. Kilbride" }
 ]
 requires-python = ">=3.9"
 dependencies = ["numpy"]
