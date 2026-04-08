@@ -51,22 +51,6 @@ Predicts tree height (ft) at a specified top diameter using the Chapman-Richards
 
 **Returns:** Predicted height in feet as a `float` (scalar inputs) or `numpy.ndarray` (array inputs).
 
-## Installation
-
-Install the latest release from PyPI:
-
-```bash
-pip install westfall-2006
-```
-
-Or clone the repository and install as an editable package:
-
-```bash
-git clone https://github.com/johnkilbride/westfall_height_to_diameter_2006.git
-cd westfall_height_to_diameter_2006
-pip install -e .
-```
-
 ## Model description
 
 Here, we show Equation (2) from Westfall and Laustsen (2006) modified to remove the error term and the random-effects parameters. The model is based on the Chapman-Richards growth equation (Richards 1959).
@@ -217,6 +201,22 @@ sawlog_height = predict_height_westfall(
     top_diam_in = 9.0,
 )
 # sawlog_height => 39.8 ft
+```
+
+## Installation
+
+Install the latest release from PyPI:
+
+```bash
+pip install westfall-2006
+```
+
+Or clone the repository and install as an editable package:
+
+```bash
+git clone https://github.com/johnkilbride/westfall_height_to_diameter_2006.git
+cd westfall_height_to_diameter_2006
+pip install -e .
 ```
 
 ## Citation
