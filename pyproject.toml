@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "westfall-2006"
-version = "0.1.0"
+version = "0.1.1"
 description = "Merchantable and total height model for tree species in Maine (Westfall and Laustsen 2006)"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = "MIT"
@@ -27,9 +27,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/johnkilbride/westfall_height_to_diameter_2006"
-Repository = "https://github.com/johnkilbride/westfall_height_to_diameter_2006"
-Issues = "https://github.com/johnkilbride/westfall_height_to_diameter_2006/issues"
+Homepage = "https://github.com/johnkilbride/westfall-2006"
+Repository = "https://github.com/johnkilbride/westfall-2006"
+Issues = "https://github.com/johnkilbride/westfall-2006/issues"
 
 [tool.setuptools.packages.find]
 include = ["westfall_2006*"]
