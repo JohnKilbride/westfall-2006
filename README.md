@@ -26,14 +26,13 @@ All six parameters accept either a scalar or an array-like, so mixed-species, mi
 
 ```python
 predict_height_westfall(
-    species_group: int | array_like | None,
+    species_group: int | array_like,
     dbh_in: float | array_like,
     ccr_pct: float | array_like,
     tree_class: str | array_like,
     crown_class: str | array_like,
     top_diam_in: float | array_like = 0.0,
-    *,
-    fia_spcd: int | array_like | None = None,
+    fia_spcd: int | array_like | None = None, # OPTIONAL
 ) -> float | numpy.ndarray
 ```
 
