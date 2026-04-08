@@ -131,7 +131,7 @@ We demonstrate that this implementation reproduces the same results.
 
 ### 1) Prediction of total height
 
-Here, we compute total height. When computing total height, you set the top-height diameter to 0.
+When computing total height, you set the top-height diameter to 0.
 
 $$\begin{aligned}
 H_{i0} &= \left(-4.2401(0) + 84.2529(0) + 91.5048(1) + 78.7788(0)\right) \\
