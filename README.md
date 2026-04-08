@@ -66,7 +66,7 @@ $CR_i$ = compacted crown ratio (%; integers 0 - 100) of the $i^{th}$ tree.
 
 $\beta_0 \text{--} \beta_7$ = the fixed-effects population parameters.
 
-## Logic overview
+## Python implementation overivew
 
 ### `predict_height_westfall`
 
