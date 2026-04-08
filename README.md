@@ -18,7 +18,9 @@ This package provides `predict_height_westfall`, a function that predicts tree h
 
 It supports 18 species groups in Maine and accepts diameter at breast height (DBH, inches), compacted crown ratio (percent), tree class, crown class, and an optional top diameter (inches). 
 
-Setting `top_diam_in=0` (the default) returns total tree height; providing a non-zero top diameter returns the height to that stem diameter, enabling estimation of merchantable bole height. All six parameters accept either a scalar or an array-like, so mixed-species, mixed-class stands can be predicted in a single call. When any parameter is array-like the inputs are broadcast together and a NumPy array is returned; otherwise a single float is returned.
+Setting `top_diam_in=0` (the default) returns total tree height; providing a non-zero top diameter returns the height to that stem diameter, enabling estimation of merchantable bole height. 
+
+All six parameters accept either a scalar or an array-like, so mixed-species, mixed-class stands can be predicted in a single call. When any parameter is array-like the inputs are broadcast together and a NumPy array is returned; otherwise a single float is returned.
 
 ### `predict_height_westfall`
 
@@ -88,9 +90,9 @@ TC_i = \begin{cases}
 \end{cases}
 $$
 
-$CR_i$ = compacted crown ratio (%; integers 0 - 100) of the $i^{th}$ tree. The units are 
+$CR_i$ = compacted crown ratio (%; integers 0 - 100) of the $i^{th}$ tree.
 
-$\beta_0 \text{--} \beta_6$ = the fixed-effects population parameters.
+$\beta_0 \text{--} \beta_7$ = the fixed-effects population parameters.
 
 ## Species Groups
 
@@ -125,7 +127,7 @@ Westfall and Laustsen (2006) provided the following example of how to apply the 
 - **Tree class** = acceptable (TC = 2)
 - **Crown class** = codominant (CC₁ = 0; CC₂ = 1; CC₃ = 0)
 
-We demonstate that this implementation reproduces the same results. 
+We demonstrate that this implementation reproduces the same results. 
 
 ### 1) Prediction of total height
 
@@ -155,7 +157,7 @@ total_height = predict_height_westfall(
 
 ### 2) Prediction of bole height (4-in. top diameter)
 
-Conpute the top height of the 4-in. diameter bole.
+Compute the top height of the 4-in. diameter bole.
 
 $$\begin{aligned}
 H_{i4} &= \left(-4.2401(4) + 84.2529(0) + 91.5048(1) + 78.7788(0)\right) \\
@@ -179,7 +181,7 @@ bole_height = predict_height_westfall(
 
 ### 3) Prediction of sawlog height (9-in. top diameter)
 
-Conpute the top height of the 9-in. diameter bole.
+Compute the top height of the 9-in. diameter bole.
 
 $$\begin{aligned}
 H_{i9} &= \left(-4.2401(9) + 84.2529(0) + 91.5048(1) + 78.7788(0)\right) \\
