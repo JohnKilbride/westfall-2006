@@ -4,9 +4,9 @@
 
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Forest Science](https://img.shields.io/badge/Forest%20Science-Allometry-228B22)](.)
+[![Forest Science](https://img.shields.io/badge/Forest%20Science-Allometry-228B22)](.)  
 
-<img src="figures/poplar_height_vs_diameter.png" alt="Poplar height vs. diameter" width="500"/>
+<img src="https://raw.githubusercontent.com/johnkilbride/westfall_height_to_diameter_2006/main/figures/poplar_height_vs_diameter.png" alt="Poplar height vs. diameter" width="500"/>
 
 <sub>Predicted height vs. diameter at breast height (DBH) for a hypothetical poplar using the allometric model from Westfall and Laustsen (2006).</sub>
 
@@ -25,8 +25,6 @@ All six parameters accept either a scalar or an array-like, so mixed-species, mi
 ### `predict_height_westfall`
 
 ```python
-from westfall_2006 import predict_height_westfall
-
 predict_height_westfall(
     species_group: int | array_like | None,
     dbh_in: float | array_like,
@@ -221,6 +219,5 @@ If you use this library, please cite [Westfall and Laustsen (2006)](https://acad
   publisher={Oxford University Press}
 }
 ```
-
 
 
