@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Forest Science](https://img.shields.io/badge/Forest%20Science-Allometry-228B22)](.)  
 
-<img src="https://raw.githubusercontent.com/johnkilbride/westfall_height_to_diameter_2006/main/figures/poplar_height_vs_diameter.png" alt="Poplar height vs. diameter" width="500"/>
+<img src="https://raw.githubusercontent.com/johnkilbride/westfall-2006/main/figures/poplar_height_vs_diameter.png" alt="Poplar height vs. diameter" width="500"/>
 
 <sub>Predicted height vs. diameter at breast height (DBH) for a hypothetical poplar using the allometric model from Westfall and Laustsen (2006).</sub>
 
