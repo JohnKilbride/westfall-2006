@@ -66,9 +66,7 @@ $CR_i$ = compacted crown ratio (%; integers 0 - 100) of the $i^{th}$ tree.
 
 $\beta_0 \text{--} \beta_7$ = the fixed-effects population parameters.
 
-## Python implementation overivew
-
-### `predict_height_westfall`
+## `predict_height_westfall`
 
 ```python
 predict_height_westfall(
@@ -96,9 +94,9 @@ Predicts tree height (ft) at a specified top diameter using the Chapman-Richards
 
 **Returns:** Predicted height in feet as a `float` (scalar inputs) or `numpy.ndarray` (array inputs).
 
-### Species Groups
+## Species Groups
 
-The `species_group` parameter accepts integers 1–18. The table below lists the species group number, the group name, the species name, and the FIA species codes (SPCD) that correspond to each species.
+The `species_group` parameter accepts integers 1–18. The table below lists the species group number, the group name, the species associated with the group, and the FIA species codes (SPCD) that correspond to each of the species.
 
 | Group | Species Group Name | Species Names | FIA SPCD |
 | :---: | :--- | :--- | :--- |
