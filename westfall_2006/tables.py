@@ -8,7 +8,9 @@ _DATA_DIR = Path(__file__).resolve().parent / "data"
 
 
 def _load_coefficients() -> Dict[int, Tuple[float, ...]]:
-    """Load species group coefficients (β₀–β₇) from CSV."""
+    """
+    Load species group coefficients (β₀–β₇) from CSV.
+    """
     coefficients: Dict[int, Tuple[float, ...]] = {}
     with open(_DATA_DIR / "coefficients.csv", newline="") as f:
         reader = csv.DictReader(f)
@@ -20,7 +22,9 @@ def _load_coefficients() -> Dict[int, Tuple[float, ...]]:
 
 
 def _load_species_groupings() -> Dict[int, int]:
-    """Load FIA species code to group number mapping."""
+    """
+    Load FIA species code to group number mapping.
+    """
     mapping: Dict[int, int] = {}
     with open(_DATA_DIR / "species_groupings.csv", newline="") as f:
         reader = csv.DictReader(f)
