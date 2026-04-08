@@ -7,7 +7,7 @@ name = "westfall-2006"
 version = "0.1.0"
 description = "Merchantable and total height model for tree species in Maine (Westfall and Laustsen 2006)"
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 authors = [
     { name = "John Kilbride" }
 ]
@@ -17,7 +17,6 @@ keywords = ["forestry", "allometric", "tree height", "FIA", "Chapman-Richards", 
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
