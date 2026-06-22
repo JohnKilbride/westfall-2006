@@ -1,7 +1,7 @@
 """Height-to-diameter model from Westfall and Laustsen (2006)."""
 
 import math
-from typing import Optional, Sequence, Union
+from typing import Union
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
@@ -139,14 +139,13 @@ def _validate_inputs(
 
 
 def predict_height_westfall(
-    species_group: Optional[Union[int, ArrayLike]],
+    species: Union[int, ArrayLike],
+    species_id: str,
     dbh_in: Union[float, ArrayLike],
     ccr_pct: Union[float, ArrayLike],
     tree_class: Union[str, ArrayLike],
     crown_class: Union[str, ArrayLike],
     top_diam_in: Union[float, ArrayLike] = 0.0,
-    *,
-    fia_spcd: Optional[Union[int, ArrayLike]] = None,
 ) -> Union[float, NDArray]:
     """
     Predict tree height (ft) at a given top diameter.
@@ -154,7 +153,13 @@ def predict_height_westfall(
     Implements the Chapman-Richards model from Westfall and Laustsen (2006)
     for 18 species groups in Maine.
 
-    All six parameters accept either a scalar value or an array-like, enabling
+    The species is supplied through a single ``species`` value whose meaning is
+    set by ``species_id``: pass ``species_id="group"`` to interpret ``species``
+    as a species group number (1–18), or ``species_id="fia"`` to interpret it
+    as an FIA species code that is converted to a group number before
+    prediction.
+
+    All value parameters accept either a scalar or an array-like, enabling
     vectorized prediction over mixed-species, mixed-class stands in a single
     call. When any parameter is array-like, all parameters are broadcast
     together and a NumPy array is returned; otherwise a single float is
@@ -162,9 +167,13 @@ def predict_height_westfall(
 
     Parameters
     ----------
-    species_group : int or array_like of int
-        Species group number (1–18).  This is the primary way to specify the
-        species.  Pass ``None`` only when supplying ``fia_spcd`` instead.
+    species : int or array_like of int
+        Species identifier(s).  Interpreted as a species group number (1–18)
+        when ``species_id="group"``, or as an FIA species code (e.g. 746 for
+        Quaking aspen) when ``species_id="fia"``.
+    species_id : {"group", "fia"}
+        How to interpret ``species``.  ``"group"`` treats it as a species
+        group number; ``"fia"`` treats it as an FIA species code.  Required.
     dbh_in : float or array_like
         Diameter at breast height (inches, > 0).
     ccr_pct : float or array_like
@@ -177,10 +186,6 @@ def predict_height_westfall(
     top_diam_in : float or array_like, optional
         Top diameter (inches, >= 0) at which to predict height. Default is 0,
         which gives total tree height.
-    fia_spcd : int or array_like of int, optional (keyword-only)
-        FIA species code(s) (e.g. 746 for Quaking aspen) as an alternative to
-        ``species_group``.  Converted to species group numbers before
-        prediction.  Mutually exclusive with ``species_group``.
 
     Returns
     -------
@@ -190,19 +195,22 @@ def predict_height_westfall(
     Raises
     ------
     ValueError
-        If neither or both of ``species_group`` and ``fia_spcd`` are provided,
-        or if any input fails a range/validity check.
+        If ``species_id`` is not "group" or "fia", or if any input fails a
+        range/validity check.
     """
-    # Convert FIA species codes to group numbers when the caller uses fia_spcd
-    # instead of the primary species_group parameter.
-    if species_group is None and fia_spcd is None:
-        raise ValueError("Either species_group or fia_spcd must be provided.")
-    if species_group is not None and fia_spcd is not None:
+    # Resolve the species identifier to a species group number based on the
+    # mode requested by species_id.
+    if not isinstance(species_id, str) or species_id.strip().lower() not in (
+        "group",
+        "fia",
+    ):
         raise ValueError(
-            "Provide either species_group or fia_spcd, not both."
+            f"Invalid species_id {species_id!r}. Must be 'group' or 'fia'."
         )
-    if fia_spcd is not None:
-        species_group = _fia_spcd_to_species_group(fia_spcd)
+    if species_id.strip().lower() == "fia":
+        species_group = _fia_spcd_to_species_group(species)
+    else:
+        species_group = species
 
     # Validate all numeric inputs before any computation.
     _validate_inputs(species_group, dbh_in, ccr_pct, top_diam_in)
