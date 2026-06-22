@@ -20,7 +20,7 @@ It supports 18 species groups in Maine and accepts diameter at breast height (DB
 
 Setting `top_diam_in=0` (the default) returns total tree height; providing a non-zero top diameter returns the height to that stem diameter, enabling estimation of merchantable bole height. 
 
-All six parameters accept either a scalar or an array-like, so mixed-species, mixed-class stands can be predicted in a single call. When any parameter is array-like the inputs are broadcast together and a NumPy array is returned; otherwise a single float is returned.
+All value parameters accept either a scalar or an array-like, so mixed-species, mixed-class stands can be predicted in a single call. When any parameter is array-like the inputs are broadcast together and a NumPy array is returned; otherwise a single float is returned.
 
 
 ## Model description
@@ -70,33 +70,35 @@ $\beta_0 \text{--} \beta_7$ = the fixed-effects population parameters.
 
 ```python
 predict_height_westfall(
-    species_group: int | array_like,
+    species: int | array_like,
+    species_id: str,                          # "group" or "fia"
     dbh_in: float | array_like,
     ccr_pct: float | array_like,
     tree_class: str | array_like,
     crown_class: str | array_like,
     top_diam_in: float | array_like = 0.0,
-    fia_spcd: int | array_like | None = None, # OPTIONAL
 ) -> float | numpy.ndarray
 ```
 
 Predicts tree height (ft) at a specified top diameter using the Chapman-Richards allometric model.
 
+The species is given by a single `species` value, and `species_id` says how to read it: `"group"` for a species group number (1–18), or `"fia"` for an FIA species code (which is converted to a group number before prediction).
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `species_group` | `int` or array | Species group number (1–18). Mutually exclusive with `fia_spcd`; exactly one must be provided. |
+| `species` | `int` or array | Species identifier. A species group number (1–18) when `species_id="group"`, or an FIA species code when `species_id="fia"`. |
+| `species_id` | `str` | How to interpret `species`: `"group"` or `"fia"`. Required (no default). |
 | `dbh_in` | `float` or array | Diameter at breast height (inches, > 0). |
 | `ccr_pct` | `float` or array | Compacted crown ratio (percent, 0–100). |
 | `tree_class` | `str` or array | One of `"preferred"`, `"acceptable"`, `"rough"`, `"rotten"`, or `"dead"`. |
 | `crown_class` | `str` or array | One of `"dominant"`, `"codominant"`, `"intermediate"`, `"overtopped"`, `"open grown"`, or `"dead"`. |
 | `top_diam_in` | `float` or array | Top stem diameter (inches, >= 0) at which to predict height. Defaults to `0.0` for total tree height. |
-| `fia_spcd` | `int` or array | FIA species code(s) (keyword-only). Converted to species group numbers before prediction. Mutually exclusive with `species_group`; exactly one must be provided. |
 
 **Returns:** Predicted height in feet as a `float` (scalar inputs) or `numpy.ndarray` (array inputs).
 
 ## Species Groups
 
-The `species_group` parameter accepts integers 1–18. The table below lists the species group number, the group name, the species associated with the group, and the FIA species codes (SPCD) that correspond to each of the species.
+With `species_id="group"`, the `species` parameter accepts integers 1–18. The table below lists the species group number, the group name, the species associated with the group, and the FIA species codes (SPCD) that correspond to each of the species. Any of those FIA codes can be passed directly via `species` with `species_id="fia"`.
 
 | Group | Species Group Name | Species Names | FIA SPCD |
 | :---: | :--- | :--- | :--- |
@@ -145,7 +147,20 @@ H_{i0} &= 75.0 \text{ ft}
 from westfall_2006 import predict_height_westfall
 
 total_height = predict_height_westfall(
-    species_group = 12,
+    species = 12,
+    species_id = "group",
+    dbh_in = 15.5,
+    ccr_pct = 40,
+    tree_class = "acceptable",
+    crown_class = "codominant",
+    top_diam_in = 0.0,
+)
+# total_height => 75.0 ft
+
+# Equivalently, using the FIA species code for Quaking aspen:
+total_height = predict_height_westfall(
+    species = 746,
+    species_id = "fia",
     dbh_in = 15.5,
     ccr_pct = 40,
     tree_class = "acceptable",
@@ -169,7 +184,8 @@ H_{i4} &= 56.9 \text{ ft}
 
 ```python
 bole_height = predict_height_westfall(
-    species_group = 12,
+    species = 12,
+    species_id = "group",
     dbh_in = 15.5,
     ccr_pct = 40,
     tree_class = "acceptable",
@@ -193,7 +209,8 @@ H_{i9} &= 39.8 \text{ ft}
 
 ```python
 sawlog_height = predict_height_westfall(
-    species_group = 12,
+    species = 12,
+    species_id = "group",
     dbh_in = 15.5,
     ccr_pct = 40,
     tree_class = "acceptable",
