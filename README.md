@@ -14,7 +14,7 @@
 
 ## Overview
 
-This package provides `predict_height_westfall`, a function that predicts tree height (ft) at a given top diameter using the Chapman-Richards allometric model from Westfall and Laustsen (2006). It supports 18 species groups in Maine.
+This package provides `predict_height_westfall`, a function that predicts tree height (ft) at a given top diameter using the Chapman-Richards allometric model from Westfall and Laustsen (2006). It supports 18 species groups in Maine. The model is based on the Chapman-Richards growth equation (Richards 1959).
 
 The tree height is estimated a function of:
 * Diameter at breast height (DBH, inches)
@@ -29,7 +29,7 @@ All value parameters accept either a scalar or an array-like. When any parameter
 
 ## Model description
 
-Here, we show Equation (2) from Westfall and Laustsen (2006) modified to remove the error term and the random-effects parameters. The model is based on the Chapman-Richards growth equation (Richards 1959).
+Here, we show Equation (2) from Westfall and Laustsen (2006) modified to remove the error term and the random-effects parameters:
 
 $$
 \begin{aligned}
@@ -38,7 +38,7 @@ H_{i} = & \left(\beta_0 D_{i} + \beta_1 CC_{1i} + \beta_2 CC_{2i} + \beta_3 CC_{
 \end{aligned}
 $$
 
-where:
+...where:
 
 $H_{i}$ = tree height (feet) of the $i^{th}$ tree at top diameter $D$.
 
