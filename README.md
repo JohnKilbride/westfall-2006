@@ -14,13 +14,17 @@
 
 ## Overview
 
-This package provides `predict_height_westfall`, a function that predicts tree height (ft) at a given top diameter using the Chapman-Richards allometric model from Westfall and Laustsen (2006). 
+This package provides `predict_height_westfall`, a function that predicts tree height (ft) at a given top diameter using the Chapman-Richards allometric model from Westfall and Laustsen (2006). It supports 18 species groups in Maine.
 
-It supports 18 species groups in Maine and accepts diameter at breast height (DBH, inches), compacted crown ratio (percent), tree class, crown class, and an optional top diameter (inches). 
+The tree height is estimated a function of:
+* Diameter at breast height (DBH, inches)
+* Compacted crown ratio (%, 0-100)
+* Tree class (`"preferred"`, `"acceptable"`, `"rough"`, `"rotten"`, or `"dead"`),
+* Crown class (`"dominant"`, `"codominant"`, `"intermediate"`, `"overtopped"`, `"open grown"`, or `"dead"`). 
 
 Setting `top_diam_in=0` (the default) returns total tree height; providing a non-zero top diameter returns the height to that stem diameter, enabling estimation of merchantable bole height. 
 
-All value parameters accept either a scalar or an array-like, so mixed-species, mixed-class stands can be predicted in a single call. When any parameter is array-like the inputs are broadcast together and a NumPy array is returned; otherwise a single float is returned.
+All value parameters accept either a scalar or an array-like. When any parameter is array-like the inputs are broadcast together and a NumPy array is returned; otherwise a single float is returned.
 
 
 ## Model description
