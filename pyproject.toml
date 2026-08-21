@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "westfall-2006"
-version = "0.1.1"
+version = "0.1.2"
 description = "Merchantable and total height model for tree species in Maine (Westfall and Laustsen 2006)"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = "MIT"
